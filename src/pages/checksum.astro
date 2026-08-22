@@ -1,0 +1,14 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ChecksumCalculator from '../components/ChecksumCalculator.svelte';
+---
+
+<Layout title="Checksum — Error Detection & Subnetting" description="RFC 1071 internet checksum and modular sum, with their failure modes.">
+  <h1>Checksum</h1>
+  <p class="lede">
+    Add the data up and send the total. Cheap enough to compute in software on every packet, which is
+    why IPv4, ICMP, UDP and TCP all use it — and weak in a specific way, since any set of changes
+    that cancel each other out leaves the sum untouched.
+  </p>
+  <ChecksumCalculator client:load />
+</Layout>

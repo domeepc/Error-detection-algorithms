@@ -1,0 +1,14 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ParityGrid from '../components/ParityGrid.svelte';
+---
+
+<Layout title="VRC + LRC — Error Detection & Subnetting" description="Two-dimensional parity checking and its four-bit blind spot.">
+  <h1>VRC + LRC</h1>
+  <p class="lede">
+    Characters are rows, bit positions are columns. VRC adds a parity bit to each row; LRC adds a
+    parity row across the columns. Together they catch every 1-, 2- and 3-bit error and can even
+    pinpoint a single one — but four bits arranged in a rectangle defeat them completely.
+  </p>
+  <ParityGrid client:load />
+</Layout>
