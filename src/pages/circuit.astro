@@ -1,0 +1,14 @@
+---
+import Layout from '../layouts/Layout.astro';
+import CircuitDiagram from '../components/CircuitDiagram.svelte';
+---
+
+<Layout title="CRC circuit — Error Detection & Subnetting" description="Linear feedback shift register diagram generated for any CRC polynomial.">
+  <h1>CRC circuit</h1>
+  <p class="lede">
+    The same division, in hardware. A linear feedback shift register with one flip-flop per degree of
+    g(x) and an XOR gate wherever g(x) has a term. The diagram below is generated from whatever
+    polynomial you enter — not picked from a library of pre-drawn pictures.
+  </p>
+  <CircuitDiagram client:load />
+</Layout>
