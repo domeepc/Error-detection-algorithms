@@ -1,0 +1,14 @@
+---
+import Layout from '../layouts/Layout.astro';
+import CrcCalculator from '../components/CrcCalculator.svelte';
+---
+
+<Layout title="CRC — Error Detection & Subnetting" description="Cyclic redundancy check calculator with full long-division working.">
+  <h1>Cyclic redundancy check</h1>
+  <p class="lede">
+    Treat the message as a polynomial over GF(2), divide it by the generator g(x), and send the
+    remainder along with the data. The receiver divides the whole frame by the same g(x) and expects
+    a remainder of zero.
+  </p>
+  <CrcCalculator client:load />
+</Layout>
