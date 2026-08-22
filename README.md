@@ -1,4 +1,6 @@
-<img src="public/favicon.svg" width="32" height="32" alt=""> Error Detection & Subnetting
+<img src="public/favicon.svg" width="64" height="64" alt="">
+
+## Error Detection & Subnetting
 
 A static, client-side teaching site for two chapters of a computer-networks course:
 error detection (CRC, VRC, LRC, checksums) and IPv4 subnetting. Nothing is sent
