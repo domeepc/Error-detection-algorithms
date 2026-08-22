@@ -1,0 +1,61 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+
+const nav = [
+  { href: '/', label: 'Overview' },
+  { href: '/crc', label: 'CRC' },
+  { href: '/circuit', label: 'Circuit' },
+  { href: '/matrix', label: 'Generator matrix' },
+  { href: '/vrc-lrc', label: 'VRC + LRC' },
+  { href: '/checksum', label: 'Checksum' },
+  { href: '/lab', label: 'Error lab' },
+  { href: '/subnetting', label: 'Subnetting' },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="/">Error Detection &amp; Subnetting</a>
+        <nav class="nav">
+          {
+            nav.map((item) => (
+              <a href={item.href} aria-current={path === item.href ? 'page' : undefined}>
+                {item.label}
+              </a>
+            ))
+          }
+        </nav>
+      </div>
+    </header>
+
+    <main class="site">
+      <slot />
+
+      <footer class="site-footer">
+        <p>
+          All computation runs in your browser — nothing is sent anywhere. CRCs use the textbook
+          form (no initial value, reflection, or final XOR), so the numbers match the long-division
+          table and circuit shown alongside them.
+        </p>
+      </footer>
+    </main>
+  </body>
+</html>

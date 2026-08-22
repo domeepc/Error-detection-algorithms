@@ -1,0 +1,91 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const chapters = [
+  {
+    title: 'Error detection',
+    blurb:
+      'How a receiver decides whether the bits that arrived are the bits that were sent — and, more interestingly, when it gets that decision wrong.',
+    links: [
+      { href: '/crc', name: 'CRC', desc: 'Polynomial division over GF(2). Long-division table, generation and verification for any generator.' },
+      { href: '/circuit', name: 'Circuit', desc: 'The shift register that computes a CRC in hardware, drawn for whatever polynomial you give it, with a clock stepper.' },
+      { href: '/matrix', name: 'Generator matrix', desc: 'Deriving G and H for the cyclic code behind a CRC, one row at a time, with the G·Hᵀ = 0 check.' },
+      { href: '/vrc-lrc', name: 'VRC + LRC', desc: 'Two-dimensional parity, and the four-bit rectangle that slips straight past it.' },
+      { href: '/checksum', name: 'Checksum', desc: "RFC 1071 one's-complement sum and plain modular sum, plus the compensating errors they cannot see." },
+      { href: '/lab', name: 'Error lab', desc: 'One frame, four schemes, arbitrary corruption. Watch which ones catch it and which do not.' },
+    ],
+  },
+  {
+    title: 'Addressing',
+    blurb: 'Splitting an IPv4 block to fit a given number of hosts or subnets.',
+    links: [
+      { href: '/subnetting', name: 'Subnetting', desc: 'Calculator, equal-size splits, and VLSM — with the general sizing rule stated rather than worked for one example.' },
+    ],
+  },
+];
+---
+
+<Layout
+  title="Error Detection & Subnetting"
+  description="Interactive CRC, VRC, LRC, checksum and IPv4 subnetting calculators with step-by-step derivations."
+>
+  <h1>Error detection &amp; subnetting</h1>
+  <p class="lede">
+    Interactive tools for two chapters of a computer-networks course. Every calculator shows its
+    working, and the error lab exists to demonstrate the part textbooks state but rarely show: these
+    schemes have specific, predictable blind spots.
+  </p>
+
+  {chapters.map((chapter) => (
+    <section>
+      <h2>{chapter.title}</h2>
+      <p class="lede">{chapter.blurb}</p>
+      <div class="home-grid">
+        {chapter.links.map((link) => (
+          <a class="home-card" href={link.href}>
+            <h3>{link.name}</h3>
+            <p>{link.desc}</p>
+          </a>
+        ))}
+      </div>
+    </section>
+  ))}
+
+  <h2>How the pieces connect</h2>
+  <div class="card">
+    <p>
+      The CRC page, the circuit page and the generator-matrix page are three views of a single
+      computation — XOR long division of the message by g(x):
+    </p>
+    <ul class="steps">
+      <li>
+        The <strong>long-division table</strong> shows the generator XORed in at each alignment, with
+        the remainder settling into the r bits the appended zeros freed up.
+      </li>
+      <li>
+        The <strong>shift register</strong> does the same arithmetic one clock at a time. Its
+        contents after each clock are the same numbers as the working register in the table.
+      </li>
+      <li>
+        The <strong>generator matrix</strong> collects the result of dividing each x<sup>n−1−i</sup>
+        by g(x); those remainders are the parity columns of G, and encoding with it reproduces
+        message + FCS exactly.
+      </li>
+    </ul>
+    <p style="margin-top:1rem">
+      Subnetting is unrelated to any of that — it shares only the page furniture and a fondness for
+      counting bits.
+    </p>
+  </div>
+
+  <h2>A note on which CRC this is</h2>
+  <div class="card">
+    <p style="margin:0">
+      CRCs here use the textbook form: no initial value, no bit reflection, no final XOR. That keeps
+      the arithmetic identical to the division table and the circuit shown next to it. Named
+      real-world variants (CRC-32 as used by Ethernet and ZIP, for instance) layer those extra
+      parameters on top, so their published check values will not match what this site prints for
+      the same polynomial. The polynomial, the division, and the guarantees are the same.
+    </p>
+  </div>
+</Layout>
