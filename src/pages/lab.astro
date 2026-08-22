@@ -1,0 +1,14 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ErrorLab from '../components/ErrorLab.svelte';
+---
+
+<Layout title="Error lab — Error Detection & Subnetting" description="Inject bit errors into a frame and compare which schemes detect them.">
+  <h1>Error lab</h1>
+  <p class="lede">
+    One frame, protected four ways at once. Corrupt it however you like — a single bit, a scattering
+    of random flips, a burst, or a hand-picked pattern — and see which schemes notice. The
+    interesting cases are the ones where a scheme reports "clean" over genuinely corrupted data.
+  </p>
+  <ErrorLab client:load />
+</Layout>
