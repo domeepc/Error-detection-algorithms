@@ -1,0 +1,15 @@
+---
+import Layout from '../layouts/Layout.astro';
+import MatrixDerivation from '../components/MatrixDerivation.svelte';
+---
+
+<Layout title="Generator matrix — Error Detection & Subnetting" description="Step-by-step derivation of the generator and parity-check matrices for a cyclic code.">
+  <h1>Generator matrix</h1>
+  <p class="lede">
+    A CRC is a cyclic code, and every linear code has a generator matrix G whose rows span it. Below,
+    G is built twice — first from shifts of g(x), then in systematic form where the message stays
+    visible and the parity bits are exactly the CRC — followed by the parity-check matrix H and a
+    proof that the two fit together.
+  </p>
+  <MatrixDerivation client:load />
+</Layout>
