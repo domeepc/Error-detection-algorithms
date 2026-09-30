@@ -1,91 +1,607 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { crcGenerate, crcVerify } from '../lib/crc';
+import { stringToBits, type Bits } from '../lib/gf2';
+
+// The hero specimen: a real codeword, then the same codeword with one bit flipped.
+const generator = stringToBits('1011');
+const sent = crcGenerate(stringToBits('11010011101100'), generator);
+const flipAt = 9;
+const received: Bits = sent.codeword.map((b, i) => (i === flipAt ? ((b ^ 1) as 0 | 1) : b));
+const check = crcVerify(received, generator);
+const k = sent.message.length;
+
+const tiles = (bits: Bits, opts: { flip?: number; fcsFrom?: number; split?: number } = {}) =>
+  bits.map((bit, i) => ({
+    bit,
+    cls: [
+      'tile',
+      i === opts.split ? 'split' : i > 0 && i % 4 === 0 ? 'gs' : '',
+      i === opts.flip ? 'flip' : opts.fcsFrom !== undefined && i >= opts.fcsFrom ? 'fcs' : '',
+    ]
+      .filter(Boolean)
+      .join(' '),
+  }));
 
 const chapters = [
   {
     title: 'Error detection',
     blurb:
       'How a receiver decides whether the bits that arrived are the bits that were sent — and, more interestingly, when it gets that decision wrong.',
+    range: '01 – 06',
     links: [
-      { href: '/crc', name: 'CRC', desc: 'Polynomial division over GF(2). Long-division table, generation and verification for any generator.' },
-      { href: '/circuit', name: 'Circuit', desc: 'The shift register that computes a CRC in hardware, drawn for whatever polynomial you give it, with a clock stepper.' },
-      { href: '/matrix', name: 'Generator matrix', desc: 'Deriving G and H for the cyclic code behind a CRC, one row at a time, with the G·Hᵀ = 0 check.' },
-      { href: '/vrc-lrc', name: 'VRC + LRC', desc: 'Two-dimensional parity, and the four-bit rectangle that slips straight past it.' },
-      { href: '/checksum', name: 'Checksum', desc: "RFC 1071 one's-complement sum and plain modular sum, plus the compensating errors they cannot see." },
-      { href: '/lab', name: 'Error lab', desc: 'One frame, four schemes, arbitrary corruption. Watch which ones catch it and which do not.' },
+      { n: '01', href: '/crc', name: 'CRC', desc: 'Polynomial division over GF(2). Long-division table, generation and verification for any generator.', tag: 'Long division', tone: 'catch' },
+      { n: '02', href: '/circuit', name: 'Circuit', desc: 'The shift register that computes a CRC in hardware, drawn for whatever polynomial you give it, with a clock stepper.', tag: 'Clock stepper', tone: 'catch' },
+      { n: '03', href: '/matrix', name: 'Generator matrix', desc: 'Deriving G and H for the cyclic code behind a CRC, one row at a time, with the G·Hᵀ = 0 check.', tag: 'G · Hᵀ = 0', tone: 'catch' },
+      { n: '04', href: '/vrc-lrc', name: 'VRC + LRC', desc: 'Two-dimensional parity, and the four-bit rectangle that slips straight past it.', tag: 'Rectangle blind spot', tone: 'miss' },
+      { n: '05', href: '/checksum', name: 'Checksum', desc: "RFC 1071 one's-complement sum and plain modular sum, plus the compensating errors they cannot see.", tag: 'Compensating pair', tone: 'miss' },
+      { n: '06', href: '/lab', name: 'Error lab', desc: 'One frame, four schemes, arbitrary corruption. Watch which ones catch it and which do not.', tag: '4 schemes · 1 frame', tone: 'ink' },
     ],
   },
   {
     title: 'Addressing',
     blurb: 'Splitting an IPv4 block to fit a given number of hosts or subnets.',
+    range: '07',
     links: [
-      { href: '/subnetting', name: 'Subnetting', desc: 'Calculator, equal-size splits, and VLSM — with the general sizing rule stated rather than worked for one example.' },
+      { n: '07', href: '/subnetting', name: 'Subnetting', desc: 'Calculator, equal-size splits, and VLSM — with the general sizing rule stated rather than worked for one example.', tag: 'VLSM', tone: 'plain' },
     ],
   },
 ];
+
+const miniMatrix = ['1000101', '0100111', '0010110', '0001011'];
 ---
 
 <Layout
   title="Error Detection & Subnetting"
   description="Interactive CRC, VRC, LRC, checksum and IPv4 subnetting calculators with step-by-step derivations."
 >
-  <h1>Error detection &amp; subnetting</h1>
-  <p class="lede">
-    Interactive tools for two chapters of a computer-networks course. Every calculator shows its
-    working, and the error lab exists to demonstrate the part textbooks state but rarely show: these
-    schemes have specific, predictable blind spots.
-  </p>
-
-  {chapters.map((chapter) => (
-    <section>
-      <h2>{chapter.title}</h2>
-      <p class="lede">{chapter.blurb}</p>
-      <div class="home-grid">
-        {chapter.links.map((link) => (
-          <a class="home-card" href={link.href}>
-            <h3>{link.name}</h3>
-            <p>{link.desc}</p>
-          </a>
-        ))}
+  <header class="hero">
+    <div class="hero-text">
+      <p class="eyebrow">Computer networks · two chapters</p>
+      <h1>Error detection<br />&amp; subnetting</h1>
+      <p class="lede">
+        Interactive tools for two chapters of a computer-networks course. Every calculator shows its
+        working, and the error lab demonstrates the part textbooks state but rarely show: these
+        schemes have specific, predictable blind spots.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-ink" href="/crc">
+          Start with CRC
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg>
+        </a>
+        <a class="btn btn-line" href="/lab">Open the error lab</a>
       </div>
-    </section>
-  ))}
+    </div>
 
-  <h2>How the pieces connect</h2>
-  <div class="card">
-    <p>
-      The CRC page, the circuit page and the generator-matrix page are three views of a single
-      computation — XOR long division of the message by g(x):
-    </p>
-    <ul class="steps">
-      <li>
-        The <strong>long-division table</strong> shows the generator XORed in at each alignment, with
-        the remainder settling into the r bits the appended zeros freed up.
-      </li>
-      <li>
-        The <strong>shift register</strong> does the same arithmetic one clock at a time. Its
-        contents after each clock are the same numbers as the working register in the table.
-      </li>
-      <li>
-        The <strong>generator matrix</strong> collects the result of dividing each x<sup>n−1−i</sup>
-        by g(x); those remainders are the parity columns of G, and encoding with it reproduces
-        message + FCS exactly.
-      </li>
-    </ul>
-    <p style="margin-top:1rem">
-      Subnetting is unrelated to any of that — it shares only the page furniture and a fondness for
-      counting bits.
-    </p>
-  </div>
+    <figure class="specimen" aria-label="A CRC codeword before and after a single-bit error">
+      <div class="spec-meta"><span>g(x) = x³ + x + 1</span><span>CRC-3/GSM</span></div>
+      <div class="spec-block">
+        <div class="spec-row"><strong>Sent · T(x)</strong><span>message + FCS</span></div>
+        <div class="strip">{tiles(sent.codeword, { fcsFrom: k, split: k }).map((t) => <span class={t.cls}>{t.bit}</span>)}</div>
+      </div>
+      <div class="spec-block">
+        <div class="spec-row"><strong>Received · T′(x)</strong><span class="spec-bad">bit {flipAt} flipped in transit</span></div>
+        <div class="strip">{tiles(received, { fcsFrom: k, split: k, flip: flipAt }).map((t) => <span class={t.cls}>{t.bit}</span>)}</div>
+      </div>
+      <div class="spec-result">
+        <div class="spec-rem">
+          <span>T′(x) mod g(x) =</span>
+          <div class="strip">{tiles(check.remainder, { fcsFrom: 0 }).map((t) => <span class={t.cls}>{t.bit}</span>)}</div>
+        </div>
+        <div class="spec-verdict">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8 12.5l2.5 2.5L16 9.5"></path></svg>
+          {check.ok ? 'Remainder is zero — no error detected' : 'Nonzero remainder — error detected'}
+        </div>
+      </div>
+      <div class="spec-legend">
+        <span><i class="sw sw-msg"></i>Message bits</span>
+        <span><i class="sw sw-fcs"></i>Check bits (FCS)</span>
+        <span><i class="sw sw-flip"></i>Corrupted bit</span>
+      </div>
+    </figure>
+  </header>
 
-  <h2>A note on which CRC this is</h2>
-  <div class="card">
-    <p style="margin:0">
-      CRCs here use the textbook form: no initial value, no bit reflection, no final XOR. That keeps
-      the arithmetic identical to the division table and the circuit shown next to it. Named
-      real-world variants (CRC-32 as used by Ethernet and ZIP, for instance) layer those extra
-      parameters on top, so their published check values will not match what this site prints for
-      the same polynomial. The polynomial, the division, and the guarantees are the same.
-    </p>
-  </div>
+  {
+    chapters.map((chapter) => (
+      <section class="chapter">
+        <div class="chapter-head">
+          <div>
+            <h2>{chapter.title}</h2>
+            <p>{chapter.blurb}</p>
+          </div>
+          <span class="range">{chapter.range}</span>
+        </div>
+        <div class="index">
+          {chapter.links.map((link) => (
+            <a class="index-row" href={link.href}>
+              <span class="index-n">{link.n}</span>
+              <span class="index-name">{link.name}</span>
+              <span class="index-desc">{link.desc}</span>
+              <span class={`index-tag tag-${link.tone}`}>{link.tag}</span>
+              <svg class="index-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg>
+            </a>
+          ))}
+        </div>
+      </section>
+    ))
+  }
+
+  <section class="chapter">
+    <div class="chapter-head">
+      <div>
+        <h2>Three views of one computation</h2>
+        <p>
+          The CRC, circuit and generator-matrix pages all perform XOR long division of the message by
+          g(x). Same input, same remainder — drawn three ways.
+        </p>
+      </div>
+    </div>
+    <div class="views">
+      <div class="view">
+        <div class="view-art mini-div">
+          <div class="strip">{[...'1101001'].map((b) => <span class="tile sm">{b}</span>)}</div>
+          <div class="strip">{[...'1011'].map((b) => <span class="tile sm gen">{b}</span>)}{[0, 1, 2].map(() => <span class="tile sm ghost">·</span>)}</div>
+          <div class="strip">{[...'0110001'].map((b, i) => <span class={`tile sm ${i === 0 ? 'done' : ''}`}>{b}</span>)}</div>
+        </div>
+        <p class="view-src">A · CRC page</p>
+        <h3>Long-division table</h3>
+        <p>The generator XORed in at each alignment, with the remainder settling into the r bits the appended zeros freed up.</p>
+      </div>
+      <div class="view">
+        <div class="view-art">
+          <svg width="260" height="96" viewBox="0 0 260 96" aria-hidden="true" class="mini-lfsr">
+            <path d="M8 60H40" class="w"></path>
+            <circle cx="50" cy="60" r="10" class="gate"></circle><path d="M44 60h12M50 54v12" class="w"></path>
+            <path d="M60 60H72" class="w"></path>
+            <rect x="72" y="44" width="32" height="32" class="cell"></rect><text x="88" y="65">0</text>
+            <path d="M104 60H116" class="w"></path>
+            <circle cx="126" cy="60" r="10" class="gate"></circle><path d="M120 60h12M126 54v12" class="w"></path>
+            <path d="M136 60H148" class="w"></path>
+            <rect x="148" y="44" width="32" height="32" class="cell"></rect><text x="164" y="65">0</text>
+            <path d="M180 60H196" class="w"></path>
+            <rect x="196" y="44" width="32" height="32" class="cell on"></rect><text x="212" y="65" class="on">1</text>
+            <path d="M228 60H244V16H50V50" class="fb"></path>
+            <path d="M126 16V50" class="fb"></path>
+          </svg>
+        </div>
+        <p class="view-src">B · Circuit page</p>
+        <h3>Shift register</h3>
+        <p>The same arithmetic one clock at a time. Its contents after each clock are the working register of the table.</p>
+      </div>
+      <div class="view">
+        <div class="view-art mini-g">
+          {miniMatrix.map((row) => (
+            <div class="strip">{[...row].map((b, i) => <span class={`tile sm ${i === 4 ? 'split' : ''} ${i >= 4 ? 'fcs' : ''}`}>{b}</span>)}</div>
+          ))}
+        </div>
+        <p class="view-src">C · Generator-matrix page</p>
+        <h3>Generator matrix</h3>
+        <p>Dividing each x<sup>n−1−i</sup> by g(x) gives the parity columns of G. Encoding with it reproduces message + FCS exactly.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="which">
+    <div class="which-text">
+      <p class="eyebrow">Which CRC this is</p>
+      <h2>The textbook form, so every number matches the table</h2>
+      <p>
+        Named variants such as Ethernet’s CRC-32 layer extra parameters on top, so their published check
+        values will not match this site for the same polynomial. The polynomial, the division and the
+        guarantees are the same.
+      </p>
+    </div>
+    <dl class="params">
+      <div><dt>Initial value</dt><dd>0</dd></div>
+      <div><dt>Bit reflection</dt><dd>none</dd></div>
+      <div><dt>Final XOR</dt><dd>0</dd></div>
+    </dl>
+  </section>
 </Layout>
+
+<style>
+  .hero {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3rem;
+    align-items: flex-end;
+    margin-bottom: 5rem;
+  }
+  .hero-text {
+    flex: 1 1 24rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .hero h1 {
+    margin: 0;
+    font-size: clamp(2.6rem, 6vw, 3.75rem);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+  }
+  .hero .lede {
+    margin: 0;
+    font-size: 1.125rem;
+    max-width: 33rem;
+  }
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding-top: 0.5rem;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 3rem;
+    padding: 0 1.25rem;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .btn-ink {
+    background: var(--ink);
+    color: var(--on-ink);
+  }
+  .btn-line {
+    border: 1px solid var(--border-strong);
+    color: var(--text);
+  }
+  .btn-line:hover {
+    border-color: var(--ink);
+  }
+
+  .specimen {
+    flex: 1 1 30rem;
+    min-width: 0;
+    margin: 0;
+    background: var(--panel);
+    color: var(--panel-text);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .spec-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    color: #8e9892;
+  }
+  .spec-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .spec-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 0.875rem;
+    color: #8e9892;
+  }
+  .spec-row strong {
+    color: #ffffff;
+    font-weight: 600;
+  }
+  .spec-bad {
+    color: #ff9b7a;
+  }
+  .spec-result {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--panel-line);
+  }
+  .spec-rem {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: #8e9892;
+  }
+  .spec-verdict {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--panel-accent);
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  .spec-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    font-size: 0.8rem;
+    color: #8e9892;
+  }
+  .spec-legend span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .sw {
+    width: 12px;
+    height: 12px;
+  }
+  .sw-msg {
+    background: #1b221e;
+    border: 1px solid #56625c;
+  }
+  .sw-fcs {
+    background: #2941e0;
+  }
+  .sw-flip {
+    background: #cf3a10;
+  }
+
+  .strip {
+    display: flex;
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+  .strip .tile {
+    margin-right: -1px;
+    border-radius: 0;
+  }
+  .strip .gs {
+    margin-left: 7px;
+  }
+  .strip .split {
+    margin-left: 13px;
+  }
+  .specimen .tile {
+    background: #1b221e;
+    border-color: #35403a;
+    color: #e3e9e5;
+  }
+  .specimen .tile.fcs,
+  .tile.fcs {
+    background: #2941e0;
+    border-color: #2941e0;
+    color: #ffffff;
+    position: relative;
+  }
+  .specimen .tile.flip {
+    background: #cf3a10;
+    border-color: #cf3a10;
+    color: #ffffff;
+    position: relative;
+  }
+  .tile.sm {
+    min-width: 1.35rem;
+    height: 1.7rem;
+    font-size: 0.72rem;
+  }
+  .tile.gen {
+    background: var(--accent-soft);
+    border-color: var(--accent-line);
+    color: var(--accent-strong);
+    position: relative;
+  }
+  .tile.ghost {
+    background: transparent;
+    border-color: transparent;
+    color: var(--text-faint);
+  }
+  .tile.done {
+    color: var(--text-faint);
+  }
+
+  .chapter {
+    margin-bottom: 4.5rem;
+  }
+  .chapter-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .chapter-head h2 {
+    margin: 0 0 0.5rem;
+  }
+  .chapter-head p {
+    margin: 0;
+    max-width: 40rem;
+    color: var(--text-2);
+  }
+  .range {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+  .index {
+    border-top: 2px solid var(--ink);
+  }
+  .index-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1.5rem;
+    padding: 1.25rem 0.5rem;
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+    color: var(--text);
+  }
+  .index-row:hover {
+    background: var(--surface-2);
+  }
+  .index-n {
+    flex: 0 0 2.5rem;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  .index-name {
+    flex: 0 0 12rem;
+    font-size: 1.375rem;
+    line-height: 1.3;
+    font-weight: 600;
+  }
+  .index-desc {
+    flex: 1 1 18rem;
+    font-size: 0.94rem;
+    line-height: 1.55;
+    color: var(--text-2);
+  }
+  .index-tag {
+    flex: 0 0 auto;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    border: 1px solid;
+  }
+  .tag-catch {
+    background: var(--accent-soft);
+    border-color: var(--accent-line);
+    color: var(--accent-strong);
+  }
+  .tag-miss {
+    background: var(--bad-soft);
+    border-color: var(--bad-line);
+    color: var(--bad-text);
+  }
+  .tag-ink {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--on-ink);
+  }
+  .tag-plain {
+    border-color: var(--border-strong);
+    color: var(--text);
+  }
+  .index-arrow {
+    flex-shrink: 0;
+  }
+
+  .views {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+    gap: 1rem;
+  }
+  .view {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+  }
+  .view h3 {
+    margin: 0.25rem 0 0.5rem;
+    font-size: 1.25rem;
+  }
+  .view p {
+    margin: 0;
+    font-size: 0.94rem;
+    line-height: 1.55;
+    color: var(--text-2);
+  }
+  .view .view-src {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 1rem;
+  }
+  .view-art {
+    height: 7rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .mini-g {
+    gap: 0;
+  }
+  .mini-lfsr {
+    max-width: 100%;
+    align-self: center;
+  }
+  .mini-lfsr .w {
+    stroke: var(--text);
+    stroke-width: 1.5;
+    fill: none;
+  }
+  .mini-lfsr .fb {
+    stroke: var(--accent);
+    stroke-width: 1.5;
+    fill: none;
+  }
+  .mini-lfsr .gate {
+    fill: var(--surface);
+    stroke: var(--text);
+    stroke-width: 1.5;
+  }
+  .mini-lfsr .cell {
+    fill: var(--tile);
+    stroke: var(--text);
+    stroke-width: 1.5;
+  }
+  .mini-lfsr .cell.on {
+    fill: #2941e0;
+    stroke: #2941e0;
+  }
+  .mini-lfsr text {
+    font-family: var(--mono);
+    font-size: 14px;
+    text-anchor: middle;
+    fill: var(--text);
+  }
+  .mini-lfsr text.on {
+    fill: #ffffff;
+  }
+
+  .which {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem 4rem;
+    padding: 2rem;
+    border: 1px solid var(--ink);
+    border-radius: var(--radius);
+  }
+  .which-text {
+    flex: 1 1 24rem;
+  }
+  .which h2 {
+    margin: 0.75rem 0;
+    font-size: 1.5rem;
+  }
+  .which p:last-child {
+    margin: 0;
+    color: var(--text-2);
+    font-size: 0.94rem;
+  }
+  .params {
+    flex: 1 1 20rem;
+    align-self: center;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  .params div {
+    background: var(--bg);
+    padding: 1rem;
+  }
+  .params dt {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  .params dd {
+    margin: 0.25rem 0 0;
+    font-family: var(--mono);
+    font-size: 1.375rem;
+  }
+</style>

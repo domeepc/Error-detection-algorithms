@@ -138,7 +138,7 @@
 {#if polyError}
   <div class="error-box">{polyError}</div>
 {:else if layout}
-  <div class="card">
+  <div class="card instrument">
     <div class="card-title">
       Circuit — {layout.stages.length} flip-flops, {layout.gates.filter((g) => g.kind === 'tap').length}
       tap XOR{layout.gates.filter((g) => g.kind === 'tap').length === 1 ? '' : 's'}
@@ -237,5 +237,8 @@
 <style>
   .diagram :global(svg) {
     min-width: 100%;
+  }
+  .diagram {
+    margin: 0.5rem 0 1rem;
   }
 </style>

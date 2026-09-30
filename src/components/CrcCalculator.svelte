@@ -285,19 +285,22 @@
   .flip-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 2px;
-    margin-top: 0.5rem;
+    gap: 4px;
+    margin-top: 0.75rem;
   }
   .bit-btn {
     font-family: var(--mono);
-    padding: 0.1rem 0.3rem;
-    min-width: 1.6rem;
+    padding: 0;
+    min-width: 2.4rem;
+    min-height: 2.75rem;
     border-radius: 3px;
+    border-color: var(--tile-border);
     font-size: 0.9rem;
-    background: var(--surface-2);
+    background: var(--tile);
   }
   .bit-btn.tail {
-    color: var(--accent);
-    font-weight: 700;
+    background: var(--accent-fill);
+    border-color: var(--accent-fill);
+    color: #fff;
   }
 </style>

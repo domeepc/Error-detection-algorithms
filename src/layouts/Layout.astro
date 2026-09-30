@@ -1,4 +1,8 @@
 ---
+import '@fontsource-variable/instrument-sans';
+import '@fontsource/martian-mono/400.css';
+import '@fontsource/martian-mono/500.css';
+import '@fontsource/martian-mono/600.css';
 import '../styles/global.css';
 
 interface Props {
@@ -9,15 +13,20 @@ interface Props {
 const { title, description } = Astro.props;
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
 
-const nav = [
-  { href: '/', label: 'Overview' },
-  { href: '/crc', label: 'CRC' },
-  { href: '/circuit', label: 'Circuit' },
-  { href: '/matrix', label: 'Generator matrix' },
-  { href: '/vrc-lrc', label: 'VRC + LRC' },
-  { href: '/checksum', label: 'Checksum' },
-  { href: '/lab', label: 'Error lab' },
-  { href: '/subnetting', label: 'Subnetting' },
+const groups = [
+  { label: null, items: [{ n: '00', href: '/', label: 'Overview' }] },
+  {
+    label: 'Error detection',
+    items: [
+      { n: '01', href: '/crc', label: 'CRC' },
+      { n: '02', href: '/circuit', label: 'Circuit' },
+      { n: '03', href: '/matrix', label: 'Generator matrix' },
+      { n: '04', href: '/vrc-lrc', label: 'VRC + LRC' },
+      { n: '05', href: '/checksum', label: 'Checksum' },
+      { n: '06', href: '/lab', label: 'Error lab' },
+    ],
+  },
+  { label: 'Addressing', items: [{ n: '07', href: '/subnetting', label: 'Subnetting' }] },
 ];
 ---
 
@@ -31,31 +40,75 @@ const nav = [
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   </head>
   <body>
-    <header class="topbar">
-      <div class="topbar-inner">
-        <a class="brand" href="/">Error Detection &amp; Subnetting</a>
-        <nav class="nav">
-          {
-            nav.map((item) => (
-              <a href={item.href} aria-current={path === item.href ? 'page' : undefined}>
-                {item.label}
-              </a>
-            ))
-          }
-        </nav>
-      </div>
-    </header>
+    <a class="skip-link" href="#content">Skip to content</a>
+    <div class="shell">
+      <aside class="rail" id="rail">
+        <div class="rail-inner">
+          <div class="rail-head">
+            <a class="brand" href="/">
+              <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
+                <rect x="1" y="1" width="12" height="12" fill="#F2F4F0"></rect>
+                <rect x="15.75" y="1.75" width="10.5" height="10.5" fill="none" stroke="#F2F4F0" stroke-width="1.5"></rect>
+                <rect x="1.75" y="15.75" width="10.5" height="10.5" fill="none" stroke="#F2F4F0" stroke-width="1.5"></rect>
+                <rect x="15" y="15" width="12" height="12" fill="#5B6DFF"></rect>
+              </svg>
+              <span class="brand-text"><strong>Error detection</strong><span>&amp; subnetting</span></span>
+            </a>
+            <button class="rail-toggle" type="button" aria-expanded="false" aria-controls="rail-nav" aria-label="Chapters menu">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+                <path d="M4 7h16"></path><path d="M4 12h16"></path><path d="M4 17h16"></path>
+              </svg>
+            </button>
+          </div>
 
-    <main class="site">
-      <slot />
+          <nav class="rail-nav" id="rail-nav" aria-label="Chapters">
+            {
+              groups.map((group) => (
+                <div class="rail-group">
+                  {group.label && <div class="rail-label">{group.label}</div>}
+                  {group.items.map((item) => (
+                    <a class="rail-link" href={item.href} aria-current={path === item.href ? 'page' : undefined}>
+                      <span class="n">{item.n}</span>
+                      <span>{item.label}</span>
+                    </a>
+                  ))}
+                </div>
+              ))
+            }
+          </nav>
 
-      <footer class="site-footer">
-        <p>
-          All computation runs in your browser — nothing is sent anywhere. CRCs use the textbook
-          form (no initial value, reflection, or final XOR), so the numbers match the long-division
-          table and circuit shown alongside them.
-        </p>
-      </footer>
-    </main>
+          <div class="rail-foot">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path>
+            </svg>
+            <span>Runs in your browser. Nothing is sent anywhere.</span>
+          </div>
+        </div>
+      </aside>
+
+      <main class="site" id="content">
+        <div class="site-inner">
+          <slot />
+
+          <footer class="site-footer">
+            <p>
+              All computation runs in your browser — nothing is sent anywhere. CRCs use the textbook
+              form (no initial value, reflection, or final XOR), so the numbers match the long-division
+              table and circuit shown alongside them.
+            </p>
+          </footer>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const rail = document.getElementById('rail');
+      const toggle = rail?.querySelector<HTMLButtonElement>('.rail-toggle');
+      toggle?.addEventListener('click', () => {
+        const open = !rail!.hasAttribute('data-open');
+        rail!.toggleAttribute('data-open', open);
+        toggle.setAttribute('aria-expanded', String(open));
+      });
+    </script>
   </body>
 </html>

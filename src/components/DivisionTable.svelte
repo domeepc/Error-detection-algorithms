@@ -109,59 +109,88 @@
 {/if}
 
 <style>
+  .division td,
+  .division th {
+    vertical-align: top;
+  }
+  .division td:first-child,
+  .division td:nth-child(2) {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    line-height: 1.45rem;
+  }
+  .division tbody td:nth-child(2) {
+    color: var(--accent);
+    font-weight: 600;
+  }
   .row {
-    padding-top: 0.15rem;
-    padding-bottom: 0.15rem;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
   }
   .line {
-    letter-spacing: 0.06em;
+    display: flex;
     white-space: nowrap;
   }
   .sub {
-    color: var(--accent);
-    border-bottom: 1px solid var(--border-strong);
-    padding-bottom: 1px;
+    margin-bottom: 2px;
   }
   .ruler {
     font-weight: 400;
     text-transform: none;
-    letter-spacing: 0.06em;
-    color: var(--text-muted);
-    margin-top: 0.35rem;
-  }
-  .ruler-cell {
-    position: relative;
-    overflow: visible;
-    font-size: 0.78em;
+    letter-spacing: 0;
+    margin-top: 0.4rem;
   }
   .cell {
-    display: inline-block;
-    width: 1ch;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.2rem;
+    height: 1.5rem;
+    margin-right: -1px;
+    border: 1px solid var(--tile-border);
+    background: var(--tile);
+    color: var(--text);
+    font-size: 0.7rem;
+    font-weight: 500;
+  }
+  .ruler-cell {
+    border-color: transparent;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.6rem;
+    height: 1rem;
+    overflow: visible;
+  }
+  .sub .cell.gen {
+    position: relative;
+    background: var(--accent-soft);
+    border-color: var(--accent-line);
+    color: var(--accent-strong);
   }
   .cell.dim {
-    color: var(--border-strong);
+    background: transparent;
+    border-color: transparent;
+    color: var(--text-faint);
   }
   .cell.done {
-    color: var(--text-muted);
-    opacity: 0.55;
+    color: var(--text-faint);
   }
   .cell.fcs {
-    color: var(--accent);
-    font-weight: 700;
+    position: relative;
+    background: var(--accent-fill);
+    border-color: var(--accent-fill);
+    color: #ffffff;
   }
+  /* The gap marks where the appended zeros (or the FCS) begin. */
   .cell.rule {
-    border-left: 2px solid var(--accent);
-    margin-left: -1px;
+    margin-left: 0.75rem;
   }
-  /* A lighter separator than .rule, purely for grouping bits into readable clusters. */
+  /* A lighter separator, purely for grouping bits into readable clusters. */
   .cell.gstart:not(.rule) {
-    margin-left: 0.45em;
+    margin-left: 0.35rem;
   }
   tr.skipped {
-    opacity: 0.55;
-  }
-  td,
-  th {
-    vertical-align: top;
+    opacity: 0.5;
   }
 </style>

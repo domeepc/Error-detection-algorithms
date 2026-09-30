@@ -367,13 +367,15 @@
                       <td rowspan={report.spots.length}><strong>{report.label}</strong></td>
                     {/if}
                     <td>
-                      <BitString
-                        bits={spot.pattern}
-                        group={unitWidth}
-                        showRuler={false}
-                        segments={spot.indices.map((idx) => ({ from: idx, to: idx + 1, class: 'fcs' }))}
-                      />
-                      <span class="note">bits {spot.indices.join(', ')}</span>
+                      <div class="pattern">
+                        <BitString
+                          bits={spot.pattern}
+                          group={unitWidth}
+                          showRuler={false}
+                          segments={spot.indices.map((idx) => ({ from: idx, to: idx + 1, class: 'err' }))}
+                        />
+                        <span class="note">bits {spot.indices.join(', ')}</span>
+                      </div>
                     </td>
                     <td>{spot.weight}</td>
                     <td class="explain">{spot.explanation}</td>
@@ -509,44 +511,67 @@
 <style>
   .bit-grid {
     display: grid;
-    grid-template-columns: repeat(var(--cols), minmax(0, 2.1rem));
-    gap: 2px;
+    grid-template-columns: repeat(var(--cols), minmax(0, 2.6rem));
+    gap: 4px;
     margin-top: 0.5rem;
     width: max-content;
     max-width: 100%;
     overflow-x: auto;
   }
+
   .bit {
     font-family: var(--mono);
-    padding: 0.15rem 0;
+    min-height: 2.75rem;
+    padding: 0;
     border-radius: 3px;
-    background: var(--surface-2);
+    border: 1px solid var(--tile-border);
+    background: var(--tile);
     color: var(--text-muted);
-    font-size: 0.88rem;
+    font-size: 0.9rem;
   }
   .bit.one {
     color: var(--text);
-    font-weight: 700;
+    font-weight: 600;
   }
   .bit.pad {
-    opacity: 0.45;
+    background: transparent;
     border-style: dashed;
+    color: var(--text-faint);
   }
   .bit.flip {
     background: var(--bad);
     border-color: var(--bad);
     color: #fff;
-    font-weight: 700;
+    font-weight: 600;
+  }
+
+  /* Error patterns are read for their shape, so they render as compact cells. */
+  .pattern {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .pattern :global(.bitstring) {
+    --tw: 0.8rem;
+  }
+  .pattern :global(.bits-row) {
+    flex-wrap: nowrap;
+    column-gap: 0.3rem;
+  }
+  .pattern :global(.bit) {
+    height: 1.15rem;
+    font-size: 0.5rem;
+    color: var(--text-faint);
   }
   td.detail {
     font-family: var(--mono);
-    font-size: 0.82rem;
+    font-size: 0.78rem;
     color: var(--text-muted);
     white-space: normal;
   }
   td.explain {
-    font-size: 0.85rem;
-    color: var(--text-muted);
+    font-size: 0.875rem;
+    color: var(--text-2);
     white-space: normal;
     max-width: 32ch;
   }

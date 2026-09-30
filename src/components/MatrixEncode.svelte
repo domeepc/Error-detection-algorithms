@@ -229,52 +229,78 @@
 {/if}
 
 <style>
+  .cell {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.3rem;
+    height: 1.6rem;
+    margin-right: -1px;
+    border: 1px solid var(--tile-border);
+    background: var(--tile);
+    color: var(--text-faint);
+    font-size: 0.72rem;
+    vertical-align: middle;
+  }
+  .cell.on {
+    color: var(--text);
+    font-weight: 600;
+  }
+  .cell.parity {
+    position: relative;
+    background: var(--accent-fill);
+    border-color: var(--accent-fill);
+    color: #c9d0ff;
+  }
+  .cell.parity.on {
+    color: #ffffff;
+  }
+
   table.gmat td {
     border: none;
-    padding: 1px 6px;
+    padding: 2px 8px;
   }
   tr.unused {
     opacity: 0.4;
   }
   tr.selected .rowlabel {
-    color: var(--accent);
-    font-weight: 700;
+    color: var(--text);
+    font-weight: 600;
   }
   .chip {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     font-family: var(--mono);
-    width: 1.5rem;
-    text-align: center;
-    border-radius: 3px;
-    background: var(--surface-2);
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    border: 1px solid var(--border-strong);
     color: var(--text-muted);
-    font-size: 0.85rem;
+    font-size: 0.75rem;
   }
   .chip.on {
-    background: var(--accent);
-    color: #fff;
-    font-weight: 700;
-  }
-  .cell {
-    display: inline-block;
-    width: 1.25ch;
-    text-align: center;
-    color: var(--text-muted);
-  }
-  .cell.on {
-    color: var(--text);
-    font-weight: 700;
-  }
-  .cell.parity.on {
-    color: var(--accent);
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--on-ink);
+    font-weight: 600;
   }
   .stack .line {
-    letter-spacing: 0.02em;
+    display: flex;
     white-space: nowrap;
   }
   .stack .sub {
-    color: var(--accent);
-    border-bottom: 1px solid var(--border-strong);
+    margin-bottom: 2px;
+  }
+  .stack .sub .cell {
+    background: transparent;
+    border-color: transparent;
+  }
+  .stack .sub .cell.on {
+    position: relative;
+    background: var(--accent-soft);
+    border-color: var(--accent-line);
+    color: var(--accent-strong);
   }
   td {
     vertical-align: middle;

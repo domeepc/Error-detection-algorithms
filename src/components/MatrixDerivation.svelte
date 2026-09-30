@@ -199,28 +199,38 @@
 
 <style>
   .cell {
-    display: inline-block;
-    width: 1.35ch;
-    text-align: center;
-    color: var(--text-muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.3rem;
+    height: 1.6rem;
+    margin-right: -1px;
+    border: 1px solid var(--tile-border);
+    background: var(--tile);
+    color: var(--text-faint);
+    font-size: 0.72rem;
+    vertical-align: middle;
   }
   .cell.on {
     color: var(--text);
-    font-weight: 700;
+    font-weight: 600;
+  }
+  .cell.parity {
+    position: relative;
+    background: var(--accent-fill);
+    border-color: var(--accent-fill);
+    color: #c9d0ff;
   }
   .cell.parity.on {
-    color: var(--accent);
+    color: #ffffff;
   }
+
   .divider {
     display: inline-block;
-    width: 0;
-    border-left: 2px solid var(--border-strong);
-    height: 1.1em;
-    vertical-align: middle;
-    margin: 0 0.4ch;
+    width: 0.6rem;
   }
   td.expanded {
-    background: var(--surface-2);
+    background: var(--bg);
     white-space: normal;
   }
   td {

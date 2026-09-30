@@ -37,7 +37,7 @@
   {#if showRuler}
     <div class="ruler" aria-hidden="true">
       {#each groups as g (g.start)}
-        <span class="ruler-group" style={`--w:${g.bits.length}ch`}>{g.start}</span>
+        <span class="ruler-group" style={`--n:${g.bits.length}`}>{g.start}</span>
       {/each}
     </div>
   {/if}
@@ -55,45 +55,61 @@
 
 <style>
   .bitstring {
+    --tw: 1.5rem;
     font-family: var(--mono);
     display: inline-block;
     max-width: 100%;
+    vertical-align: middle;
   }
   .ruler,
   .bits-row {
     display: flex;
     flex-wrap: wrap;
-    row-gap: 0.15rem;
-  }
-  .ruler {
-    column-gap: 0.65em;
+    row-gap: 0.4rem;
+    column-gap: 0.5rem;
   }
   .ruler-group {
-    width: var(--w);
-    font-size: 0.72em;
+    width: calc(var(--n) * (var(--tw) - 1px) + 1px);
+    font-size: 0.65rem;
     color: var(--text-muted);
-    line-height: 1.4;
+    line-height: 1.6;
+    padding-left: 0.2rem;
   }
   .group {
-    display: inline-block;
-    margin-right: 0.65em;
+    display: inline-flex;
     white-space: nowrap;
   }
-  .group:last-child {
+  .bit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--tw);
+    height: 1.9rem;
+    margin-right: -1px;
+    border: 1px solid var(--tile-border);
+    background: var(--tile);
+    color: var(--text);
+    font-size: 0.78rem;
+    font-weight: 500;
+  }
+  .bit:last-child {
     margin-right: 0;
   }
-  .bit {
-    letter-spacing: 0.02em;
-  }
-  .bit.msg {
-    color: var(--text);
-  }
   .bit.fcs {
-    color: var(--accent);
-    font-weight: 700;
+    position: relative;
+    background: var(--accent-fill);
+    border-color: var(--accent-fill);
+    color: #ffffff;
+  }
+  .bit.err {
+    position: relative;
+    background: var(--bad);
+    border-color: var(--bad);
+    color: #ffffff;
   }
   .bit.dim {
+    background: transparent;
+    border-style: dashed;
     color: var(--text-muted);
-    opacity: 0.6;
   }
 </style>

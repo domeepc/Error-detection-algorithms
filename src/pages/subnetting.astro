@@ -4,11 +4,20 @@ import SubnetCalculator from '../components/SubnetCalculator.svelte';
 ---
 
 <Layout title="Subnetting — Error Detection & Subnetting" description="IPv4 subnet calculator, equal-size splits, and VLSM with the general sizing rule.">
-  <h1>IPv4 subnetting</h1>
-  <p class="lede">
-    Borrowing bits from the host portion to create subnets. How many you borrow depends on what you
-    need — hosts per subnet, or number of subnets — so the general rule is stated at the bottom of
-    this page rather than being buried inside one worked example.
-  </p>
+  <header class="page-head">
+    <div class="page-head-text">
+      <p class="eyebrow">07 · Addressing</p>
+      <h1>IPv4 subnetting</h1>
+      <p class="lede">
+        Borrowing bits from the host portion to create subnets. How many you borrow depends on what you
+        need — hosts per subnet, or number of subnets — so the general rule is stated at the bottom of
+        this page rather than being buried inside one worked example.
+      </p>
+    </div>
+    <div class="formula" aria-label="Key formulas">
+      <span>smallest h with 2<sup>h</sup> − 2 ≥ hosts</span>
+      <span class="key">prefix = 32 − h</span>
+    </div>
+  </header>
   <SubnetCalculator client:load />
 </Layout>
