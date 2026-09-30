@@ -280,6 +280,7 @@
 {#if source && 'error' in source}
   <div class="error-box">{source.error}</div>
 {:else if data}
+  <div class="lab-row">
   <div class="card">
     <div class="card-title">Inject an error</div>
     <div class="button-row">
@@ -327,6 +328,48 @@
         <dt>Burst span</dt>
         <dd>{burstSpan(pattern)} bits</dd>
       </dl>
+    {/if}
+  </div>
+
+
+    {#if polyError}
+      <div class="error-box">{polyError}</div>
+    {:else if outcomes}
+    <div class="card instrument scoreboard">
+      <div class="card-title">
+        Detection
+        {#if actuallyCorrupt}<span class="tally">{outcomes.length - missedBy.length} caught · {missedBy.length} missed</span>{/if}
+      </div>
+      {#if !actuallyCorrupt}
+        <p class="note">Frame is intact — every scheme should pass. Inject an error.</p>
+      {/if}
+      <ul class="score">
+        {#each outcomes as o (o.scheme)}
+          {@const state = !actuallyCorrupt ? 'clean' : o.detected ? 'caught' : 'missed'}
+          <li>
+            <span class="vd {state}">{state}</span>
+            <span class="who"><strong>{o.label}</strong><span class="ev">{o.detail}</span></span>
+          </li>
+        {/each}
+      </ul>
+      {#if actuallyCorrupt && missedBy.length > 0}
+        <p class="sum-line">
+          {missedBy.length} scheme{missedBy.length === 1 ? '' : 's'} failed to notice
+          {weight(pattern!)} corrupted bit{weight(pattern!) === 1 ? '' : 's'}.
+        </p>
+        {#if missedBy.some((o) => o.scheme === 'vrc+lrc')}
+          <p class="note">
+            The four flips sit at the corners of a rectangle, so every affected row and column gained
+            exactly <em>two</em> errors. Parity counts only oddness, so it sees nothing. Row and
+            column parity together catch all 1-, 2- and 3-bit errors — four is where the pattern
+            defeats them, and no amount of extra parity rows fixes it.
+          </p>
+        {/if}
+      {:else if actuallyCorrupt}
+        <p class="sum-line">Every scheme caught this one.</p>
+        <p class="note">Try the rectangular blind spot.</p>
+      {/if}
+    </div>
     {/if}
   </div>
 
@@ -408,64 +451,8 @@
     </div>
   {/if}
 
-  {#if polyError}
-    <div class="error-box">{polyError}</div>
-  {:else if outcomes}
-    <div class="card">
-      <div class="card-title">Detection</div>
-      {#if !actuallyCorrupt}
-        <p class="note">Frame is intact — every scheme should pass. Inject an error above.</p>
-      {/if}
-      <div class="scroll-x">
-        <table>
-          <thead>
-            <tr>
-              <th>Scheme</th>
-              <th>Verdict</th>
-              <th>Evidence</th>
-            </tr>
-          </thead>
-          <tbody>
-            {#each outcomes as o (o.scheme)}
-              <tr>
-                <td><strong>{o.label}</strong></td>
-                <td>
-                  {#if !actuallyCorrupt}
-                    <span class="status status-ok">clean</span>
-                  {:else if o.detected}
-                    <span class="status status-ok">caught</span>
-                  {:else}
-                    <span class="status status-bad">MISSED</span>
-                  {/if}
-                </td>
-                <td class="detail">{o.detail}</td>
-              </tr>
-            {/each}
-          </tbody>
-        </table>
-      </div>
-
-      {#if actuallyCorrupt && missedBy.length > 0}
-        <p style="margin-top:1rem">
-          <span class="status status-bad">
-            {missedBy.length} scheme{missedBy.length === 1 ? '' : 's'} failed to notice
-            {weight(pattern!)} corrupted bit{weight(pattern!) === 1 ? '' : 's'}
-          </span>
-        </p>
-        {#if missedBy.some((o) => o.scheme === 'vrc+lrc')}
-          <p style="margin-top:0.8rem">
-            The four flips sit at the corners of a rectangle, so every affected row and column gained
-            exactly <em>two</em> errors. Parity counts only oddness, so it sees nothing. Row and
-            column parity together catch all 1-, 2- and 3-bit errors — four is where the pattern
-            defeats them, and no amount of extra parity rows fixes it.
-          </p>
-        {/if}
-      {:else if actuallyCorrupt}
-        <p class="note" style="margin-top:1rem">Every scheme caught this one. Try the rectangular blind spot.</p>
-      {/if}
-    </div>
-
-    <div class="card">
+  {#if outcomes}
+    <div class="card burst">
       <div class="card-title">Burst experiment</div>
       <p class="note">
         CRC detects <em>every</em> burst up to r = {r} bits. At r + 1 = {r + 1} the escape
@@ -473,7 +460,7 @@
         beyond that 2<sup>−{r}</sup>. Run a few thousand trials and watch the tally match.
       </p>
       <div class="button-row" style="margin-top:0.9rem">
-        <button onclick={() => runBurstTrials(r, 500)}>500 bursts of {r} (must all be caught)</button>
+        <button class="primary" onclick={() => runBurstTrials(r, 500)}>500 bursts of {r} (must all be caught)</button>
         <button onclick={() => runBurstTrials(r + 1, 500)}>500 bursts of {r + 1}</button>
         <button onclick={() => runBurstTrials(r + 4, 500)}>500 bursts of {r + 4}</button>
         <button onclick={() => (trials = { run: 0, missed: 0, length: 0 })} disabled={trials.run === 0}>
@@ -482,19 +469,21 @@
       </div>
 
       {#if trials.run > 0}
-        <dl class="kv" style="margin-top:1rem">
-          <dt>Burst length</dt>
-          <dd>{trials.length}</dd>
-          <dt>Trials</dt>
-          <dd>{trials.run.toLocaleString()}</dd>
-          <dt>Escaped</dt>
-          <dd>{trials.missed.toLocaleString()} ({((trials.missed / trials.run) * 100).toFixed(3)}%)</dd>
-          <dt>Predicted</dt>
-          <dd>
-            {trials.length <= r
-              ? '0% — guaranteed'
-              : `${((trials.length === r + 1 ? Math.pow(2, -(r - 1)) : Math.pow(2, -r)) * 100).toPrecision(3)}%`}
-          </dd>
+        <dl class="readout big" style="margin-top:1.25rem">
+          <div><dt>Burst length</dt><dd>{trials.length}</dd></div>
+          <div><dt>Trials</dt><dd>{trials.run.toLocaleString()}</dd></div>
+          <div>
+            <dt>Escaped</dt>
+            <dd>{trials.missed.toLocaleString()} <small>({((trials.missed / trials.run) * 100).toFixed(3)} %)</small></dd>
+          </div>
+          <div>
+            <dt>Predicted</dt>
+            <dd>
+              {trials.length <= r
+                ? '0 %'
+                : `${((trials.length === r + 1 ? Math.pow(2, -(r - 1)) : Math.pow(2, -r)) * 100).toPrecision(3)} %`}
+            </dd>
+          </div>
         </dl>
         {#if trials.length <= r && trials.missed === 0}
           <p style="margin-top:0.8rem">
@@ -509,6 +498,113 @@
 {/if}
 
 <style>
+  .lab-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: stretch;
+    margin: 1rem 0;
+  }
+  .lab-row > .card {
+    margin: 0;
+    flex: 1 1 26rem;
+    min-width: 0;
+  }
+  .lab-row > .error-box {
+    flex: 1 1 26rem;
+  }
+  .scoreboard {
+    display: flex;
+    flex-direction: column;
+  }
+  .scoreboard > .card-title:first-child {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .tally {
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    text-transform: none;
+    color: var(--panel-muted);
+  }
+  .score {
+    list-style: none;
+    margin: 0 -1.5rem;
+    padding: 0;
+  }
+  .score li {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1.5rem;
+    border-bottom: 1px solid var(--panel-line);
+  }
+  .vd {
+    flex: 0 0 6.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    height: 2rem;
+    border-radius: 999px;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .vd::before {
+    content: '';
+    width: 0.8rem;
+    height: 0.8rem;
+    background: currentColor;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5 5L20 6.5'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5 5L20 6.5'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
+  .vd.caught,
+  .vd.clean {
+    border: 1px solid #9aa8ff;
+    color: #c3cbff;
+  }
+  .vd.missed {
+    background: var(--bad);
+    border: 1px solid var(--bad);
+    color: #ffffff;
+  }
+  .vd.missed::before {
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2l11 20H1z'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2l11 20H1z'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
+  .who {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .who strong {
+    color: #ffffff;
+    font-weight: 600;
+  }
+  .ev {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--panel-muted);
+    overflow-wrap: anywhere;
+  }
+  .sum-line {
+    margin: 1.25rem 0 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #ffffff;
+  }
+  .burst {
+    border-color: var(--ink);
+  }
+  .readout small {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
   .bit-grid {
     display: grid;
     grid-template-columns: repeat(var(--cols), minmax(0, 2.6rem));

@@ -65,7 +65,7 @@
 {:else if g && enc && matrix}
   <div class="card">
     <div class="card-title">Basis</div>
-    <div class="button-row">
+    <div class="segmented" role="group" aria-label="Basis">
       <button
         class={basis === 'systematic' ? 'primary' : ''}
         onclick={() => (basis = 'systematic')}>Systematic [I | P]</button
@@ -205,19 +205,21 @@
     </dl>
 
     {#if viaDivision}
-      <p style="margin-top:1rem">
-        <span class="status {agrees || basis === 'nonSystematic' ? 'status-ok' : 'status-bad'}">
+      <div class="banner {agrees || basis === 'nonSystematic' ? 'banner-ok' : 'banner-bad'}" role="status">
+        <div class="banner-head">
+          <span class="banner-tag">
+            {#if basis === 'nonSystematic'}Valid codeword{:else if agrees}Matches long division{:else}Disagrees with long division{/if}
+          </span>
+        </div>
+        <p class="banner-sub">
           {#if basis === 'nonSystematic'}
-            Valid codeword, but not the systematic frame — the message is not readable from it
-          {:else if agrees}
-            Matches long division exactly: {bitsToString(viaDivision.codeword)}
+            A valid codeword, but not the systematic frame — the message is not readable from it.
           {:else}
-            Disagrees with long division ({bitsToString(viaDivision.codeword)})
+            Long division gives {bitsToString(viaDivision.codeword)}.
           {/if}
-        </span>
-      </p>
+        </p>
+      </div>
     {/if}
-
     <p class="note" style="margin-top:1rem">
       Same answer, different route. Long division is what the hardware does one bit at a time;
       the matrix shows the code as a vector space, where a codeword is just a linear combination of

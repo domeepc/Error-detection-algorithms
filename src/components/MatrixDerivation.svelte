@@ -55,7 +55,7 @@
   <div class="error-box">{result.error}</div>
 {:else if g}
   <div class="card">
-    <div class="card-title">Step 1 — Non-systematic G: every row is a shift of g(x)</div>
+    <div class="step-head"><span class="step-num">1</span><h3>Non-systematic G: every row is a shift of g(x)</h3></div>
     <p class="note">
       The code is the set of all multiples of g(x) with degree below n. A basis is therefore
       g(x), g(x)·x, …, g(x)·x<sup>k−1</sup> — literally g(x) slid one place right per row. This is
@@ -83,7 +83,7 @@
   </div>
 
   <div class="card">
-    <div class="card-title">Step 2 — Systematic G = [I<sub>k</sub> | P]</div>
+    <div class="step-head"><span class="step-num">2</span><h3>Systematic G = [I<sub>k</sub> | P]</h3></div>
     <p class="note">
       A codeword is c(x) = m(x)·x<sup>r</sup> + [m(x)·x<sup>r</sup> mod g(x)] — message shifted up,
       remainder filled into the freed low bits. Feeding in one message bit at a time (m(x) =
@@ -132,7 +132,7 @@
   </div>
 
   <div class="card">
-    <div class="card-title">Step 3 — Parity-check matrix H = [Pᵀ | I<sub>r</sub>]</div>
+    <div class="step-head"><span class="step-num">3</span><h3>Parity-check matrix H = [Pᵀ | I<sub>r</sub>]</h3></div>
     <div class="scroll-x">
       <table>
         <tbody>
@@ -159,30 +159,34 @@
     </p>
   </div>
 
-  <div class="card">
-    <div class="card-title">Step 4 — Self-check: G·Hᵀ must be zero</div>
-    <p>
-      <span class="status {g.valid ? 'status-ok' : 'status-bad'}">
-        {g.valid
-          ? `G·Hᵀ = 0 (${g.k}×${g.r} zero matrix) — H is a valid parity-check matrix for G`
-          : 'G·Hᵀ ≠ 0 — something is wrong'}
-      </span>
-    </p>
-    <p class="note" style="margin-top:0.9rem">
-      Over GF(2), [I | P]·[Pᵀ | I]ᵀ = P + P = 0, since addition is XOR and anything XORed with
-      itself vanishes. Every codeword therefore satisfies H·cᵀ = 0, which is the receiver's test.
-    </p>
-    {#if dmin !== null}
-      <p style="margin-top:0.9rem">
-        Minimum Hamming distance <strong>d = {dmin}</strong> — detects up to {dmin - 1} bit errors,
-        corrects up to {Math.floor((dmin - 1) / 2)}.
-      </p>
-    {:else}
-      <p class="note" style="margin-top:0.9rem">
-        Minimum distance is found by brute force over all 2<sup>k</sup> − 1 nonzero messages, so it
-        is only computed for k ≤ 16.
-      </p>
-    {/if}
+  <div class="card instrument">
+    <div class="step-head"><span class="step-num">4</span><h3>Self-check: G·Hᵀ must be zero</h3></div>
+    <div class="check">
+      <div class="check-text">
+        <p>
+          <span class="status {g.valid ? 'status-ok' : 'status-bad'}">
+            {g.valid
+              ? `G·Hᵀ = 0 (${g.k}×${g.r} zero matrix) — H is a valid parity-check matrix for G`
+              : 'G·Hᵀ ≠ 0 — something is wrong'}
+          </span>
+        </p>
+        <p class="note">
+          Over GF(2), [I | P]·[Pᵀ | I]ᵀ = P + P = 0, since addition is XOR and anything XORed with
+          itself vanishes. Every codeword therefore satisfies H·cᵀ = 0, which is the receiver's test.
+        </p>
+      </div>
+      {#if dmin !== null}
+        <dl class="dist">
+          <div><dt>Minimum distance</dt><dd class="big">d = {dmin}</dd></div>
+          <div><dt>Detects · corrects</dt><dd>{dmin - 1} error{dmin - 1 === 1 ? '' : 's'} · {Math.floor((dmin - 1) / 2)} error{Math.floor((dmin - 1) / 2) === 1 ? '' : 's'}</dd></div>
+        </dl>
+      {:else}
+        <p class="note dist">
+          Minimum distance is found by brute force over all 2<sup>k</sup> − 1 nonzero messages, so it
+          is only computed for k ≤ 16.
+        </p>
+      {/if}
+    </div>
   </div>
 
   <div class="card">
@@ -198,6 +202,39 @@
 {/if}
 
 <style>
+  .check {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.5rem 3rem;
+  }
+  .check-text {
+    flex: 1 1 24rem;
+  }
+  .check-text .status {
+    white-space: normal;
+  }
+  .dist {
+    flex: 0 1 auto;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .dist dt {
+    font-size: 0.8rem;
+    color: var(--panel-muted);
+  }
+  .dist dd {
+    margin: 0;
+    font-family: var(--mono);
+    color: #ffffff;
+  }
+  .dist .big {
+    font-size: 2rem;
+    line-height: 1.2;
+  }
+
   .cell {
     display: inline-flex;
     align-items: center;

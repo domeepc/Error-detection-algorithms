@@ -8,7 +8,8 @@
     MAX_WORD_BITS,
     type ChecksumMode,
   } from '../lib/checksum';
-  import { bitsToString, type Bit, type Bits } from '../lib/gf2';
+  import BitString from './BitString.svelte';
+  import { bitsToString, stringToBits, type Bit, type Bits } from '../lib/gf2';
   import { INPUT_MODES, tryParseInput, type InputMode } from '../lib/input';
 
   let mode = $state<InputMode>('binary');
@@ -113,11 +114,11 @@
 
 <div class="card">
   <div class="card-title">Algorithm</div>
-  <div class="button-row">
-    <button class={algorithm === 'internet' ? 'primary' : ''} onclick={() => (algorithm = 'internet')}>
+  <div class="segmented" role="group" aria-label="Algorithm">
+    <button class={algorithm === 'internet' ? 'primary' : ''} aria-pressed={algorithm === 'internet'} onclick={() => (algorithm = 'internet')}>
       Internet checksum (RFC 1071)
     </button>
-    <button class={algorithm === 'modular' ? 'primary' : ''} onclick={() => (algorithm = 'modular')}>
+    <button class={algorithm === 'modular' ? 'primary' : ''} aria-pressed={algorithm === 'modular'} onclick={() => (algorithm = 'modular')}>
       Modular sum
     </button>
   </div>
@@ -254,7 +255,9 @@
               <td class="mono" class:over={step.carried}>
                 {step.rawSum.toString(2).padStart(wordBits, '0')}
               </td>
-              <td class:carry={step.carried}>{step.carryAction}</td>
+              <td>
+                {#if step.carried}<span class="wrap">{step.carryAction}</span>{:else}<span class="nocarry">{step.carryAction}</span>{/if}
+              </td>
               <td class="mono">{step.afterBinary}</td>
             </tr>
           {/each}
@@ -268,15 +271,22 @@
 
   <div class="card">
     <div class="card-title">Result</div>
-    <dl class="kv">
-      <dt>Sum</dt>
-      <dd>{good.sumBinary} &nbsp;<span class="note">{toHex(good.sum, wordBits)}</span></dd>
-      <dt>Checksum</dt>
-      <dd>
-        <strong style="color:var(--accent)">{good.checksumBinary}</strong>
-        &nbsp;<span class="note">{toHex(good.checksum, wordBits)}</span>
-      </dd>
-    </dl>
+    <div class="sums">
+      <div class="sum-box">
+        <span class="eyebrow">Sum</span>
+        <BitString bits={stringToBits(good.sumBinary)} showRuler={false} />
+        <span class="hex">{toHex(good.sum, wordBits)}</span>
+      </div>
+      <div class="sum-box check">
+        <span class="eyebrow">Checksum{algorithm === 'internet' || complement ? ' = ~sum' : ''}</span>
+        <BitString
+          bits={stringToBits(good.checksumBinary)}
+          showRuler={false}
+          segments={[{ from: 0, to: good.checksumBinary.length, class: 'fcs' }]}
+        />
+        <span class="hex">{toHex(good.checksum, wordBits)}</span>
+      </div>
+    </div>
     {#if algorithm === 'internet' || complement}
       <p class="note" style="margin-top:0.9rem">
         The checksum is the bitwise complement of the sum — every 1 becomes 0 and vice versa. A
@@ -312,30 +322,30 @@
     </div>
 
     {#if verdict && received}
-      <p style="margin-top:1.1rem">
-        <span class="status {verdict.ok ? 'status-bad' : 'status-ok'}">
+      {@const missed = verdict.ok && changedBits.size > 0}
+      <div class="banner {missed ? 'banner-bad' : 'banner-ok'}" role="status">
+        <div class="banner-head">
+          <span class="banner-tag">{missed ? 'Missed' : verdict.ok ? 'Passes' : 'Error detected'}</span>
+          <span class="banner-chip">{changedBits.size} bit{changedBits.size === 1 ? '' : 's'} changed</span>
+        </div>
+        <p class="banner-text">
           {verdict.ok
-            ? 'Checksum still passes — corruption NOT detected'
-            : 'Checksum fails — corruption detected'}
-        </span>
-        <span class="status status-warn" style="margin-left:0.5rem">
-          {changedBits.size} bit{changedBits.size === 1 ? '' : 's'} changed
-        </span>
-      </p>
-
-      <dl class="kv" style="margin-top:0.9rem">
-        <dt>Receiver computed</dt>
-        <dd>{verdict.totalBinary}</dd>
-        <dt>Expected</dt>
-        <dd>{verdict.expectedBinary}</dd>
-        <dt>Check used</dt>
-        <dd class="note" style="font-family:var(--sans)">
-          {verdict.method === 'sum-including-checksum'
-            ? 'sum of words including the checksum field'
-            : 'recompute the sum and compare'}
-        </dd>
+            ? 'Checksum still passes — corruption not detected.'
+            : 'Checksum fails — corruption detected.'}
+        </p>
+      </div>
+      <dl class="readout">
+        <div><dt>Receiver computed</dt><dd>{verdict.totalBinary}</dd></div>
+        <div><dt>Expected</dt><dd>{verdict.expectedBinary}</dd></div>
+        <div>
+          <dt>Check used</dt>
+          <dd class="plain">
+            {verdict.method === 'sum-including-checksum'
+              ? 'sum of words including the checksum'
+              : 'recompute the sum and compare'}
+          </dd>
+        </div>
       </dl>
-
       {#if verdict.ok && changedBits.size > 0}
         <p style="margin-top:0.9rem">
           <strong>The corruption slipped through.</strong> Additive checksums are blind to any set
@@ -354,6 +364,49 @@
 {/if}
 
 <style>
+  .wrap {
+    display: inline-flex;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    background: var(--accent-fill);
+    color: #ffffff;
+  }
+  .nocarry {
+    color: var(--text-faint);
+  }
+  .sums {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .sum-box {
+    flex: 1 1 16rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+  }
+  .sum-box.check {
+    border-color: var(--accent-fill);
+  }
+  .sum-box.check .eyebrow {
+    color: var(--accent-strong);
+  }
+  .hex {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  .readout .plain {
+    font-family: var(--sans);
+    font-size: 0.9rem;
+  }
+
   .word .cell {
     display: inline-block;
     width: 1.2ch;
