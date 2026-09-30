@@ -28,6 +28,20 @@ const groups = [
   },
   { label: 'Addressing', items: [{ n: '07', href: '/subnetting', label: 'Subnetting' }] },
 ];
+
+// Each chapter ends by pointing at the next one, in the order the rail lists them.
+const teasers: Record<string, string> = {
+  '/crc': 'Polynomial division, with every step shown',
+  '/circuit': 'The same division, one clock at a time',
+  '/matrix': 'The same code as a matrix: derive G and H',
+  '/vrc-lrc': 'Two-dimensional parity, and its rectangle blind spot',
+  '/checksum': 'Sums, and the errors that cancel out',
+  '/lab': 'One frame, four schemes — the error lab',
+  '/subnetting': 'A different chapter: splitting an IPv4 block',
+};
+const order = groups.flatMap((g) => g.items);
+const at = order.findIndex((item) => item.href === path);
+const next = at > 0 && at < order.length - 1 ? order[at + 1] : null;
 ---
 
 <!doctype html>
@@ -89,6 +103,20 @@ const groups = [
       <main class="site" id="content">
         <div class="site-inner">
           <slot />
+
+          {
+            next && (
+              <a class="next-link" href={next.href}>
+                <span>
+                  <small>Next · {next.n}</small>
+                  <strong>{teasers[next.href] ?? next.label}</strong>
+                </span>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path>
+                </svg>
+              </a>
+            )
+          }
 
           <footer class="site-footer">
             <p>

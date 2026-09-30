@@ -63,18 +63,29 @@
   );
 
   /* ---------------- vlsm ---------------- */
-  let requirementsText = $state('Sales: 110\nEngineering: 50\nOps: 12\nWAN link: 2');
+  // Editable rows, largest-first ordering happens inside vlsm().
+  let reqRows = $state<Array<{ label: string; hosts: number }>>([
+    { label: 'Sales', hosts: 110 },
+    { label: 'Engineering', hosts: 50 },
+    { label: 'Ops', hosts: 12 },
+    { label: 'WAN link', hosts: 2 },
+  ]);
+
+  function addRow() {
+    reqRows.push({ label: `Subnet ${reqRows.length + 1}`, hosts: 10 });
+  }
+
+  function removeRow(i: number) {
+    reqRows.splice(i, 1);
+  }
 
   const requirements = $derived.by((): VlsmRequirement[] | { error: string } => {
     const out: VlsmRequirement[] = [];
-    for (const [i, line] of requirementsText.split('\n').entries()) {
-      const trimmed = line.trim();
-      if (!trimmed) continue;
-      const m = trimmed.match(/^(.*?)\s*[:=]\s*(\d+)$/);
-      if (!m) return { error: `Line ${i + 1}: expected "name: hosts", got "${trimmed}"` };
-      const hosts = Number(m[2]);
-      if (hosts < 1) return { error: `Line ${i + 1}: host count must be at least 1` };
-      out.push({ label: m[1] || `Subnet ${out.length + 1}`, hosts });
+    for (const [i, row] of reqRows.entries()) {
+      const hosts = Number(row.hosts);
+      if (!Number.isInteger(hosts) || hosts < 1)
+        return { error: `Row ${i + 1}: host count must be a whole number, at least 1` };
+      out.push({ label: row.label.trim() || `Subnet ${i + 1}`, hosts });
     }
     if (out.length === 0) return { error: 'Add at least one requirement' };
     return out;
@@ -193,11 +204,11 @@
 {:else if tab === 'split'}
   <div class="card">
     <div class="card-title">Requirement</div>
-    <div class="button-row">
-      <button class={sizeBy === 'hosts' ? 'primary' : ''} onclick={() => (sizeBy = 'hosts')}>
+    <div class="segmented" role="group" aria-label="Size by">
+      <button class={sizeBy === 'hosts' ? 'primary' : ''} aria-pressed={sizeBy === 'hosts'} onclick={() => (sizeBy = 'hosts')}>
         Size by hosts per subnet
       </button>
-      <button class={sizeBy === 'subnets' ? 'primary' : ''} onclick={() => (sizeBy = 'subnets')}>
+      <button class={sizeBy === 'subnets' ? 'primary' : ''} aria-pressed={sizeBy === 'subnets'} onclick={() => (sizeBy = 'subnets')}>
         Size by number of subnets
       </button>
     </div>
@@ -316,10 +327,22 @@
 {:else if tab === 'vlsm'}
   <div class="card">
     <div class="card-title">Requirements</div>
-    <div class="field">
-      <label for="sn-reqs">One per line, as <code>name: hosts</code></label>
-      <textarea id="sn-reqs" rows="6" bind:value={requirementsText} spellcheck="false"></textarea>
+    <div class="req-grid">
+      <span class="req-h">Name</span>
+      <span class="req-h">Hosts</span>
+      <span></span>
+      {#each reqRows as row, i}
+        <input type="text" bind:value={row.label} aria-label={`Name of subnet ${i + 1}`} class="req-name" />
+        <input type="number" min="1" bind:value={row.hosts} aria-label={`Usable hosts needed by ${row.label || `subnet ${i + 1}`}`} />
+        <button class="req-x" aria-label={`Remove ${row.label || `subnet ${i + 1}`}`} onclick={() => removeRow(i)}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+        </button>
+      {/each}
     </div>
+    <button class="req-add" onclick={addRow}>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+      Add requirement
+    </button>
   </div>
 
   {#if plan && 'error' in plan}
@@ -366,6 +389,7 @@
             <tr>
               <th>Subnet</th>
               <th>Needed</th>
+              <th class="mono">Sizing</th>
               <th class="mono">Assigned</th>
               <th class="mono">Range</th>
               <th>Usable</th>
@@ -379,6 +403,9 @@
                   <button class="pick label" aria-pressed={i === vlsmSel} aria-label={`Show ${a.label} in binary`} onclick={() => (vlsmPick = i)}>{a.label}</button>
                 </td>
                 <td>{a.requested}</td>
+                <td class="mono sizing">
+                  {#if a.info.hasNetworkBroadcast}2<sup>{32 - a.info.prefix}</sup> − 2 = {a.info.usableHosts}{:else}/{a.info.prefix} point-to-point{/if}
+                </td>
                 <td class="mono">{formatAddress(a.info.network)}/{a.info.prefix}</td>
                 <td class="mono">
                   {a.info.firstHost !== null ? formatAddress(a.info.firstHost) : '—'} –
@@ -450,6 +477,42 @@
 </div>
 
 <style>
+  .req-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 7rem 2.75rem;
+    gap: 0.5rem;
+    align-items: center;
+    max-width: 32rem;
+  }
+  .req-h {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  .req-name {
+    font-family: var(--sans);
+  }
+  .req-x {
+    width: 2.75rem;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-color: transparent;
+    background: transparent;
+    color: var(--text-muted);
+  }
+  .req-add {
+    margin-top: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-style: dashed;
+    background: transparent;
+  }
+  .sizing {
+    color: var(--text-2);
+  }
+
   textarea {
     font-family: var(--mono);
     resize: vertical;

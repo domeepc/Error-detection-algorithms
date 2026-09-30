@@ -149,7 +149,7 @@
   });
 </script>
 
-<div class="tabs" role="tablist">
+<div class="tabs segmented" role="tablist">
   <button
     role="tab"
     aria-selected={inputMode === 'builder'}
@@ -257,19 +257,16 @@
 {/if}
 
 {#if parsed.ok}
-  <dl class="kv" style="margin-top:0.85rem">
-    <dt>Parsed as</dt>
-    <dd><Polynomial bits={parsed.bits} /></dd>
-    <dt>Binary</dt>
-    <dd>{bitsToString(parsed.bits)}</dd>
-    <dt>Hex</dt>
-    <dd>{formatHex(parsed.bits)}</dd>
-    <dt>Degree r</dt>
-    <dd>{parsed.bits.length - 1} &nbsp;<span class="note">→ {parsed.bits.length - 1}-bit FCS</span></dd>
+  <p class="parsed">g(x) = <Polynomial bits={parsed.bits} /></p>
+  <dl class="readout">
+    <div><dt>Binary</dt><dd>{bitsToString(parsed.bits)}</dd></div>
+    <div><dt>Hex</dt><dd>{formatHex(parsed.bits)}</dd></div>
+    <div><dt>FCS width</dt><dd>{parsed.bits.length - 1} bits</dd></div>
   </dl>
   {#if matchedPreset}
-    <p class="note" style="margin-top:0.6rem">
-      Matches the standard <strong>{matchedPreset.label}</strong>. {matchedPreset.note}
+    <p class="match">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8 12.5l2.5 2.5L16 9.5"></path></svg>
+      <span>Matches the standard <strong>{matchedPreset.label}</strong>. {matchedPreset.note}</span>
     </p>
   {:else}
     <p class="note custom-tag" style="margin-top:0.6rem">Custom polynomial — not one of the standard presets.</p>
@@ -279,6 +276,26 @@
 {/if}
 
 <style>
+  .parsed {
+    margin: 1.25rem 0 0.75rem;
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    overflow-wrap: anywhere;
+  }
+  .match {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin: 0.9rem 0 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--accent-strong);
+  }
+  .match svg {
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+  }
+
   .term-grid {
     display: flex;
     flex-wrap: wrap;

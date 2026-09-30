@@ -80,6 +80,14 @@
   });
 
   const shown = $derived(received ?? sent);
+
+  /** Error shapes on a 5×5 block, indexed row-major; the last one is the rectangle. */
+  const COVERAGE = [
+    { title: '1 bit', why: 'Its row and its column both turn odd.', flips: [7], caught: true },
+    { title: '2 bits', why: 'Same row: two columns flag it. Otherwise the rows do.', flips: [6, 8], caught: true },
+    { title: '3 bits', why: 'At least one row or column is left with an odd count.', flips: [6, 8, 16], caught: true },
+    { title: '4 bits on a rectangle', why: 'Every touched row and column gets exactly two.', flips: [6, 8, 16, 18], caught: false },
+  ];
   const check = $derived(shown ? checkParityBlock(shown) : null);
 
   const flipped = $derived.by(() => {
@@ -120,7 +128,7 @@
 <div class="card">
   <div class="card-title">Data block</div>
 
-  <div class="button-row" style="margin-bottom:1rem">
+  <div class="segmented" role="group" aria-label="Data block source" style="margin-bottom:1rem">
     <button class={source === 'binary' ? 'primary' : ''} onclick={() => (source = 'binary')}>
       Binary rows
     </button>
@@ -198,6 +206,9 @@
 {#if original && 'error' in original}
   <div class="error-box">{original.error}</div>
 {:else if shown && sent && check}
+  {@const rows = shown.rows.length}
+  {@const cols = shown.bitsPerRow}
+  {@const missed = check.ok && flipped.size > 0}
   <div class="card">
     <div class="card-title">
       Parity block — {shown.rows.length} rows × {shown.bitsPerRow} bits
@@ -282,48 +293,123 @@
     </dl>
   </div>
 
-  <div class="card">
-    <div class="card-title">Verdict</div>
-    <p>
-      <span class="status {check.ok ? 'status-ok' : 'status-bad'}">
-        {check.ok ? 'All parity bits agree — no error detected' : 'Parity mismatch — error detected'}
+  <div class="banner {missed ? 'banner-bad' : 'banner-ok'}" role="status">
+    <div class="banner-head">
+      <span class="banner-tag">
+        {#if missed}Missed{:else if check.ok}No error detected{:else}Error detected{/if}
       </span>
       {#if flipped.size > 0}
-        <span class="status status-warn" style="margin-left:0.5rem">
-          {flipped.size} bit{flipped.size === 1 ? '' : 's'} actually corrupted
-        </span>
+        <span class="banner-chip">{flipped.size} bit{flipped.size === 1 ? '' : 's'} corrupted</span>
+      {/if}
+    </div>
+    <p class="banner-text">
+      {#if missed}
+        {flipped.size} bits corrupted, 0 of {rows + cols} parity checks failed. The receiver accepts the block.
+      {:else if check.ok}
+        All parity bits agree.
+      {:else}
+        Parity mismatch in {check.badRows.length} row{check.badRows.length === 1 ? '' : 's'} and
+        {check.badColumns.length} column{check.badColumns.length === 1 ? '' : 's'}.
       {/if}
     </p>
+    <div class="banner-stats">
+      <span><strong>{rows - check.badRows.length}/{rows}</strong>rows agree</span>
+      <span><strong>{cols - check.badColumns.length}/{cols}</strong>columns agree</span>
+    </div>
+  </div>
 
-    {#if check.correctable}
-      <p style="margin-top:0.9rem">
-        Exactly one row and one column fail, which pinpoints the flipped bit at
-        <strong>row {check.correctable.row}, column {check.correctable.column}</strong>. With a
-        single error, 2D parity does not merely detect — it <em>corrects</em>.
-      </p>
-    {/if}
+  {#if check.correctable}
+    <p>
+      Exactly one row and one column fail, which pinpoints the flipped bit at
+      <strong>row {check.correctable.row}, column {check.correctable.column}</strong>. With a
+      single error, 2D parity does not merely detect — it <em>corrects</em>.
+    </p>
+  {/if}
 
-    {#if check.ok && flipped.size > 0}
-      <p style="margin-top:0.9rem">
-        <strong>This is the blind spot.</strong> Every touched row and every touched column gained an
-        <em>even</em> number of errors, so all parity bits still agree and the block passes clean
-        despite {flipped.size} corrupted bits. Two-dimensional parity catches all 1-, 2- and 3-bit
-        errors, but a rectangle of four defeats it. A CRC of any reasonable width catches this
-        pattern without effort — try the same data on the
-        <a href="/lab">error lab</a>.
-      </p>
-    {/if}
+  {#if missed}
+    <p>
+      <strong>This is the blind spot.</strong> Every touched row and every touched column gained an
+      <em>even</em> number of errors, so all parity bits still agree and the block passes clean
+      despite {flipped.size} corrupted bits. A CRC of any reasonable width catches this pattern
+      without effort — try the same data on the <a href="/lab">error lab</a>.
+    </p>
+  {/if}
 
-    <dl class="kv" style="margin-top:0.9rem">
+  {#if !check.ok}
+    <dl class="kv">
       <dt>Failing rows</dt>
       <dd>{check.badRows.length ? check.badRows.join(', ') : '—'}</dd>
       <dt>Failing columns</dt>
       <dd>{check.badColumns.length ? check.badColumns.join(', ') : '—'}</dd>
     </dl>
-  </div>
+  {/if}
+
+  <section class="coverage" aria-labelledby="cov-h">
+    <h2 id="cov-h">What two-dimensional parity guarantees</h2>
+    <div class="stats">
+      {#each COVERAGE as c (c.title)}
+        <div class="stat">
+          <div class="mini" aria-hidden="true">
+            {#each Array(25) as _, i}<span class="m" class:mf={c.flips.includes(i) && c.caught} class:mx={c.flips.includes(i) && !c.caught}></span>{/each}
+          </div>
+          <span class="cov-title">{c.title}</span>
+          <span class="stat-label">{c.why}</span>
+          <span class="tag" class:tag-ok={c.caught} class:tag-bad={!c.caught}>{c.caught ? 'Always caught' : 'Never caught'}</span>
+        </div>
+      {/each}
+    </div>
+  </section>
 {/if}
 
 <style>
+  .coverage {
+    margin-top: 2.5rem;
+  }
+  .coverage h2 {
+    margin: 0 0 1rem;
+    font-size: 1.5rem;
+  }
+  .mini {
+    display: grid;
+    grid-template-columns: repeat(5, 16px);
+    gap: 3px;
+  }
+  .m {
+    width: 16px;
+    height: 16px;
+    border: 1px solid var(--tile-border);
+    background: var(--tile);
+  }
+  .m.mf {
+    background: var(--ink);
+    border-color: var(--ink);
+  }
+  .m.mx {
+    background: var(--bad);
+    border-color: var(--bad);
+  }
+  .cov-title {
+    font-weight: 600;
+  }
+  .tag {
+    align-self: flex-start;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    border: 1px solid;
+  }
+  .tag-ok {
+    background: var(--accent-soft);
+    border-color: var(--accent-line);
+    color: var(--accent-strong);
+  }
+  .tag-bad {
+    background: var(--bad);
+    border-color: var(--bad);
+    color: #ffffff;
+  }
+
   textarea {
     font-family: var(--mono);
     resize: vertical;

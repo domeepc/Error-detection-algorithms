@@ -803,3 +803,308 @@ footer.site-footer {
   font-size: 0.85rem;
   max-width: 48rem;
 }
+
+/* ---------- Segmented toggles ---------- */
+
+/* A joined group of mutually exclusive buttons; the selected one is ink. */
+.segmented {
+  display: inline-flex;
+  flex-wrap: wrap;
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  max-width: 100%;
+}
+/* Every button draws a divider on its top and left, pulled 1px outward; the group's overflow
+   clips the ones on its outer edge, so the lines stay right when the buttons wrap. */
+.segmented button {
+  border: 0;
+  border-top: 1px solid var(--ink);
+  border-left: 1px solid var(--ink);
+  border-radius: 0;
+  background: transparent;
+  margin: -1px 0 0 -1px;
+  flex-grow: 1;
+}
+.segmented button:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+.segmented button.primary,
+.segmented button[aria-selected='true'] {
+  background: var(--ink);
+  color: var(--on-ink);
+  font-weight: 600;
+}
+.tabs.segmented {
+  margin: 0 0 1.25rem;
+  gap: 0;
+}
+.tabs.segmented button {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  color: var(--text);
+  border-bottom: 0;
+}
+
+/* ---------- Verdict banners ---------- */
+
+.banner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius);
+  color: #ffffff;
+  margin: 1rem 0;
+}
+.banner-bad {
+  background: var(--bad);
+}
+.banner-ok {
+  background: var(--accent-fill);
+}
+.banner-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1rem;
+}
+.banner-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.banner-tag::before {
+  content: '';
+  width: 1.3rem;
+  height: 1.3rem;
+  background: currentColor;
+}
+.banner-bad .banner-tag::before {
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2l11 20H1z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2l11 20H1z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.banner-ok .banner-tag::before {
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M8 12.5l2.5 2.5L16 9.5'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M8 12.5l2.5 2.5L16 9.5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.banner-chip {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  padding: 0.15rem 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 999px;
+}
+.banner-head .banner-chip {
+  margin-left: auto;
+}
+.banner-text {
+  margin: 0;
+  font-size: 1.15rem;
+  line-height: 1.5;
+  font-weight: 600;
+}
+.banner-sub {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  opacity: 0.9;
+}
+.banner-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+}
+.banner-stats span {
+  display: flex;
+  flex-direction: column;
+}
+.banner-stats strong {
+  font-size: 1.5rem;
+  line-height: 1.3;
+  font-weight: 500;
+}
+
+/* ---------- Readouts: a grid of labelled numbers ---------- */
+
+.readout {
+  margin: 0;
+  padding: 1px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 1px;
+}
+.readout > div {
+  box-shadow: 0 0 0 1px var(--border);
+  background: var(--surface);
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+.readout dt {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.readout dd {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+.readout.big dd {
+  font-size: 1.5rem;
+  line-height: 1.3;
+}
+
+/* ---------- Stat tiles with a bar ---------- */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 1px;
+  background: var(--tile-border);
+  border: 1px solid var(--tile-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.stat {
+  background: var(--surface);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.stat-label {
+  font-size: 0.875rem;
+  color: var(--text-2);
+}
+.stat-value {
+  font-family: var(--mono);
+  font-size: 1.75rem;
+  line-height: 1.2;
+  font-weight: 500;
+}
+.stat-value small {
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+.stat-bar {
+  height: 6px;
+  background: var(--border);
+}
+.stat-bar span {
+  display: block;
+  height: 100%;
+  background: var(--accent-fill);
+}
+.stat-note {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* ---------- Numbered steps ---------- */
+
+.step-head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.step-head h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+.step-num {
+  flex: 0 0 2.75rem;
+  height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.instrument .step-num {
+  border-color: var(--panel-accent);
+  color: var(--panel-accent);
+}
+.instrument .step-head h3 {
+  color: #ffffff;
+}
+
+/* ---------- Next-chapter link ---------- */
+
+.next-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2.5rem;
+  padding: 1.5rem 1.75rem;
+  background: var(--panel);
+  color: #ffffff;
+  border-radius: var(--radius);
+  text-decoration: none;
+}
+.next-link:hover {
+  background: #1c2420;
+}
+.next-link span {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.next-link small {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9aa8ff;
+}
+.next-link strong {
+  font-size: 1.25rem;
+  line-height: 1.4;
+  font-weight: 600;
+}
+.next-link svg {
+  flex-shrink: 0;
+}
+
+/* Instrument panels: controls on dark. */
+.instrument button {
+  background: transparent;
+  color: var(--panel-text);
+  border-color: var(--panel-border);
+}
+.instrument button:hover:not(:disabled) {
+  border-color: #ffffff;
+}
+.instrument button.primary {
+  background: #ffffff;
+  border-color: #ffffff;
+  color: #111714;
+}
+.instrument label {
+  color: var(--panel-text);
+}
+.instrument input[type='range'] {
+  accent-color: #9aa8ff;
+}
+.instrument .kv dt {
+  color: var(--panel-muted);
+}
+.tabs.segmented button[aria-selected='true'] {
+  background: var(--ink);
+  color: var(--on-ink);
+  font-weight: 600;
+}
