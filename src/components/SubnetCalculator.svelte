@@ -364,7 +364,7 @@
   }
   .borrowed {
     color: var(--accent);
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: 0.1em;
   }
 </style>

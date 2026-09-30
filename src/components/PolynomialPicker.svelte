@@ -282,37 +282,41 @@
   .term-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.35rem;
-    margin-top: 0.4rem;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
   }
   .term {
     font-family: var(--mono);
-    font-size: 0.92rem;
-    min-width: 2.6rem;
-    padding: 0.35rem 0.5rem;
-    border-radius: 6px;
-    border: 1px solid var(--border-strong);
-    background: var(--surface-2);
+    font-size: 0.95rem;
+    min-width: 3.5rem;
+    min-height: 3.25rem;
+    padding: 0.35rem 0.6rem;
+    border-radius: var(--radius-sm);
+    border: 1px dashed var(--border-strong);
+    background: var(--tile);
     color: var(--text-muted);
   }
   .term:hover:not(:disabled) {
-    border-color: var(--accent);
-    color: var(--accent);
+    border-style: solid;
+    border-color: var(--ink);
+    color: var(--text);
   }
   .term.on {
-    background: var(--accent);
-    border-color: var(--accent);
+    background: var(--accent-fill);
+    border: 1px solid var(--accent-fill);
     color: #fff;
-    font-weight: 700;
   }
   /* Higher specificity than the plain hover rule above, so an already-on button keeps
-     white text on hover instead of orange-on-orange. */
+     white text on hover. */
   .term.on:hover:not(:disabled) {
     color: #fff;
+    border-color: var(--ink);
   }
   .term.forced {
     cursor: default;
-    box-shadow: inset 0 0 0 2px var(--accent-soft);
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--on-ink);
   }
   .term:disabled {
     opacity: 1;

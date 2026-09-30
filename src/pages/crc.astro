@@ -4,11 +4,21 @@ import CrcCalculator from '../components/CrcCalculator.svelte';
 ---
 
 <Layout title="CRC — Error Detection & Subnetting" description="Cyclic redundancy check calculator with full long-division working.">
-  <h1>Cyclic redundancy check</h1>
-  <p class="lede">
-    Treat the message as a polynomial over GF(2), divide it by the generator g(x), and send the
-    remainder along with the data. The receiver divides the whole frame by the same g(x) and expects
-    a remainder of zero.
-  </p>
+  <header class="page-head">
+    <div class="page-head-text">
+      <p class="eyebrow">01 · Error detection</p>
+      <h1>Cyclic redundancy check</h1>
+      <p class="lede">
+        Treat the message as a polynomial over GF(2), divide it by the generator g(x), and send the
+        remainder along with the data. The receiver divides the whole frame by the same g(x) and expects
+        a remainder of zero.
+      </p>
+    </div>
+    <div class="formula" aria-label="Key formulas">
+      <span>R(x) = x<sup>r</sup>·M(x) mod g(x)</span>
+      <span>T(x) = x<sup>r</sup>·M(x) + R(x)</span>
+      <span class="key">T(x) mod g(x) = 0</span>
+    </div>
+  </header>
   <CrcCalculator client:load />
 </Layout>

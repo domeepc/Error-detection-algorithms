@@ -331,7 +331,7 @@
   }
   table.grid th,
   table.grid td {
-    padding: 2px 3px;
+    padding: 2px;
     border: none;
     text-align: center;
   }
@@ -343,21 +343,23 @@
   }
   .colhead.bad,
   .rowhead.bad {
-    color: var(--bad);
+    color: var(--bad-text);
     font-weight: 700;
   }
   .bit {
     font-family: var(--mono);
-    width: 2rem;
-    padding: 0.15rem 0;
+    width: 2.75rem;
+    min-height: 2.75rem;
+    padding: 0;
     border-radius: 3px;
-    background: var(--surface-2);
+    border: 1px solid var(--tile-border);
+    background: var(--tile);
     color: var(--text-muted);
-    font-size: 0.9rem;
+    font-size: 0.95rem;
   }
   .bit.one {
     color: var(--text);
-    font-weight: 700;
+    font-weight: 600;
   }
   .bit.flipped {
     background: var(--bad);
@@ -365,31 +367,36 @@
     color: #fff;
   }
   .bit.pad {
-    opacity: 0.45;
+    background: transparent;
     border-style: dashed;
+    color: var(--text-faint);
   }
   .parity-bit {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     font-family: var(--mono);
-    width: 2rem;
-    padding: 0.15rem 0;
-    background: var(--accent-soft);
-    color: var(--accent);
+    width: 2.75rem;
+    height: 2.75rem;
+    background: var(--accent-fill);
+    color: #fff;
     border-radius: 3px;
-    font-weight: 700;
-    font-size: 0.9rem;
+    font-weight: 500;
+    font-size: 0.95rem;
   }
   .parity-bit.corner {
-    outline: 1px solid var(--accent);
+    outline: 2px solid var(--ink);
+    outline-offset: 1px;
   }
   .sep {
-    border-left: 2px solid var(--border-strong) !important;
+    padding-left: 0.6rem !important;
   }
-  .lrc-row {
-    border-top: 2px solid var(--border-strong);
+  .lrc-row td,
+  .lrc-row th {
+    padding-top: 0.6rem !important;
   }
   .mark.bad {
-    color: var(--bad);
+    color: var(--bad-text);
     font-weight: 700;
   }
 </style>

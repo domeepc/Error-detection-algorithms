@@ -356,13 +356,14 @@
 <style>
   .word .cell {
     display: inline-block;
-    width: 1ch;
+    width: 1.2ch;
   }
   .cell.pad {
-    color: var(--border-strong);
+    color: var(--text-faint);
   }
   td.over {
-    color: var(--warn);
+    color: var(--accent);
+    font-weight: 600;
   }
   td.carry {
     color: var(--accent);
@@ -370,33 +371,37 @@
   }
   .bit-strip {
     display: grid;
-    grid-template-columns: repeat(var(--cols), minmax(0, 1.9rem));
-    gap: 2px;
-    margin-top: 0.6rem;
+    grid-template-columns: repeat(var(--cols), minmax(0, 2.4rem));
+    gap: 4px;
+    margin-top: 0.75rem;
     width: max-content;
     max-width: 100%;
     overflow-x: auto;
   }
+
   .bit {
     font-family: var(--mono);
-    padding: 0.15rem 0;
+    min-height: 2.75rem;
+    padding: 0;
     border-radius: 3px;
-    background: var(--surface-2);
+    border: 1px solid var(--tile-border);
+    background: var(--tile);
     color: var(--text-muted);
-    font-size: 0.88rem;
+    font-size: 0.9rem;
   }
   .bit.one {
     color: var(--text);
-    font-weight: 700;
+    font-weight: 600;
   }
   .bit.pad {
-    opacity: 0.45;
+    background: transparent;
     border-style: dashed;
+    color: var(--text-faint);
   }
   .bit.flip {
     background: var(--bad);
     border-color: var(--bad);
     color: #fff;
-    font-weight: 700;
+    font-weight: 600;
   }
 </style>

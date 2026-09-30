@@ -4,12 +4,22 @@ import MatrixDerivation from '../components/MatrixDerivation.svelte';
 ---
 
 <Layout title="Generator matrix — Error Detection & Subnetting" description="Step-by-step derivation of the generator and parity-check matrices for a cyclic code.">
-  <h1>Generator matrix</h1>
-  <p class="lede">
-    A CRC is a cyclic code, and every linear code has a generator matrix G whose rows span it. Below,
-    G is built twice — first from shifts of g(x), then in systematic form where the message stays
-    visible and the parity bits are exactly the CRC — followed by the parity-check matrix H and a
-    proof that the two fit together.
-  </p>
+  <header class="page-head">
+    <div class="page-head-text">
+      <p class="eyebrow">03 · Error detection</p>
+      <h1>Generator matrix</h1>
+      <p class="lede">
+        A CRC is a cyclic code, and every linear code has a generator matrix G whose rows span it. Below,
+        G is built twice — first from shifts of g(x), then in systematic form where the message stays
+        visible and the parity bits are exactly the CRC — followed by the parity-check matrix H and a
+        proof that the two fit together.
+      </p>
+    </div>
+    <div class="formula" aria-label="Key formulas">
+      <span>c = m · G</span>
+      <span>G = [ I<sub>k</sub> | P ]</span>
+      <span class="key">G · Hᵀ = 0</span>
+    </div>
+  </header>
   <MatrixDerivation client:load />
 </Layout>
