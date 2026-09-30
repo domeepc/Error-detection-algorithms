@@ -1,13 +1,3 @@
-<script module lang="ts">
-  export interface BarSegment {
-    key: string;
-    label: string;
-    start: number;
-    size: number;
-    prefix: number;
-  }
-</script>
-
 <script lang="ts">
   /**
    * A proportional map of a parent address block: one segment per allocated subnet, with any
@@ -16,8 +6,11 @@
    *
    * Segments are buttons when `onselect` is given, so the bar doubles as a picker for the
    * binary view below it.
+   *
+   * Its styles are in global.css under "Address map", not here: see the note there.
    */
   import { formatAddress } from '../lib/subnet';
+  import type { BarSegment } from './address-bar';
 
   interface Props {
     parentStart: number;
@@ -131,102 +124,3 @@
     {/each}
   </div>
 </div>
-
-<style>
-  .addrbar {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-  }
-  .bar {
-    display: flex;
-    height: 4.5rem;
-    border: 1px solid var(--ink);
-    background: var(--surface);
-  }
-  .seg {
-    flex-basis: 0;
-    min-width: 4px;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 0.55rem 0.6rem;
-    border: 0;
-    border-radius: 0;
-    overflow: hidden;
-    text-align: left;
-    font-family: var(--sans);
-  }
-  .seg + .seg {
-    border-left: 1px solid var(--surface);
-  }
-  button.seg {
-    cursor: pointer;
-  }
-  button.seg:hover:not(:disabled) {
-    filter: brightness(1.15);
-  }
-  /* Selection is a ring in the page colour: red is reserved for errors on this site. */
-  .seg.sel {
-    box-shadow:
-      inset 0 0 0 3px var(--surface),
-      inset 0 0 0 4px var(--ink);
-  }
-  .name {
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-weight: 600;
-    font-size: 0.9rem;
-    line-height: 1.2;
-    white-space: nowrap;
-  }
-  .pfx {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-  }
-  .t0 {
-    background: var(--ink);
-    color: var(--on-ink);
-  }
-  .t1 {
-    background: var(--accent-fill);
-    color: #ffffff;
-  }
-  .t2 {
-    background: #9aa8ff;
-    color: #0f1412;
-  }
-  .t3 {
-    background: #4b5550;
-    color: #ffffff;
-  }
-  .free {
-    background: repeating-linear-gradient(135deg, transparent 0 6px, var(--border) 6px 7px);
-  }
-  .ticks {
-    position: relative;
-    height: 1.1rem;
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    color: var(--text-muted);
-  }
-  .tick {
-    position: absolute;
-    top: 0;
-    white-space: nowrap;
-  }
-  .tick.end {
-    transform: translateX(-100%);
-  }
-  .sr {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
-  }
-</style>

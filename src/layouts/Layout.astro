@@ -51,7 +51,11 @@ const next = at > 0 && at < order.length - 1 ? order[at + 1] : null;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#111714" />
   </head>
   <body>
     <a class="skip-link" href="#content">Skip to content</a>

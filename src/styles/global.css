@@ -1108,3 +1108,111 @@ footer.site-footer {
   color: var(--on-ink);
   font-weight: 600;
 }
+
+/* ---------- Address map (AddressBar.svelte) ----------
+   These live here rather than in the component: the map only renders on the Split and VLSM
+   tabs, which the server build sees as unreachable (the tab state is a constant there), so
+   the component's scoped CSS was tree-shaken out of production builds. */
+
+.addrbar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.addrbar .bar {
+  display: flex;
+  height: 4.5rem;
+  border: 1px solid var(--ink);
+  background: var(--surface);
+}
+.addrbar .seg {
+  flex-basis: 0;
+  min-width: 4px;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0.55rem 0.6rem;
+  border: 0;
+  border-radius: 0;
+  overflow: hidden;
+  text-align: left;
+  font-family: var(--sans);
+}
+.addrbar .seg + .seg {
+  border-left: 1px solid var(--surface);
+}
+.addrbar button.seg {
+  cursor: pointer;
+}
+.addrbar button.seg:hover:not(:disabled) {
+  filter: brightness(1.15);
+}
+/* Selection is a ring in the page colour: red is reserved for errors on this site. */
+.addrbar .seg.sel {
+  box-shadow:
+    inset 0 0 0 3px var(--surface),
+    inset 0 0 0 4px var(--ink);
+}
+.addrbar .name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  font-size: 0.9rem;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.addrbar .pfx {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+}
+.addrbar .t0 {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+.addrbar .t1 {
+  background: var(--accent-fill);
+  color: #ffffff;
+}
+.addrbar .t2 {
+  background: #9aa8ff;
+  color: #0f1412;
+}
+.addrbar .t3 {
+  background: #4b5550;
+  color: #ffffff;
+}
+.addrbar .free {
+  background: repeating-linear-gradient(135deg, transparent 0 6px, var(--border) 6px 7px);
+}
+.addrbar .ticks {
+  position: relative;
+  height: 1.1rem;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+.addrbar .tick {
+  position: absolute;
+  top: 0;
+  white-space: nowrap;
+}
+.addrbar .tick.end {
+  transform: translateX(-100%);
+}
+.addrbar .sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.addrbar button.seg {
+  min-height: 0;
+}
+.addrbar button.seg:hover:not(:disabled) {
+  border-color: var(--surface);
+}

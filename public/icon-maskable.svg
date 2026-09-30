@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Full-bleed square with the mark inside the 80% safe zone, for maskable launcher icons. -->
+  <rect width="32" height="32" fill="#111714"/>
+  <rect x="8.5" y="8.5" width="7" height="7" fill="#f2f4f0"/>
+  <rect x="17.6" y="9.1" width="5.8" height="5.8" fill="none" stroke="#f2f4f0" stroke-width="1.2"/>
+  <rect x="9.1" y="17.6" width="5.8" height="5.8" fill="none" stroke="#f2f4f0" stroke-width="1.2"/>
+  <rect x="17" y="17" width="7" height="7" fill="#5b6dff"/>
+</svg>
