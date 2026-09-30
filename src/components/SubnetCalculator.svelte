@@ -1,4 +1,6 @@
 <script lang="ts">
+  import AddressBar, { type BarSegment } from './AddressBar.svelte';
+  import AddressBinary from './AddressBinary.svelte';
   import {
     parseAddress,
     formatAddress,
@@ -6,7 +8,6 @@
     subdivide,
     vlsm,
     binarySplit,
-    toBinary,
     usableHosts,
     type VlsmRequirement,
   } from '../lib/subnet';
@@ -50,6 +51,17 @@
 
   const splitOk = $derived(split && !('error' in split) ? split : null);
 
+  // Which subnet the address map and binary view are showing.
+  let splitPick = $state(0);
+  const splitSel = $derived(splitOk && splitPick < splitOk.subnets.length ? splitPick : 0);
+  const splitSegments = $derived(
+    splitOk && !splitOk.truncated
+      ? splitOk.subnets.map(
+          (s, i): BarSegment => ({ key: String(i), label: `#${i}`, start: s.network, size: s.totalAddresses, prefix: s.prefix }),
+        )
+      : [],
+  );
+
   /* ---------------- vlsm ---------------- */
   let requirementsText = $state('Sales: 110\nEngineering: 50\nOps: 12\nWAN link: 2');
 
@@ -78,6 +90,16 @@
   });
 
   const planOk = $derived(plan && !('error' in plan) ? plan : null);
+
+  let vlsmPick = $state(0);
+  const vlsmSel = $derived(planOk && vlsmPick < planOk.allocations.length ? vlsmPick : 0);
+  const vlsmSegments = $derived(
+    planOk
+      ? planOk.allocations.map(
+          (a, i): BarSegment => ({ key: String(i), label: a.label, start: a.info.network, size: a.info.totalAddresses, prefix: a.info.prefix }),
+        )
+      : [],
+  );
 </script>
 
 <div class="card">
@@ -153,25 +175,17 @@
     {/if}
 
     <div class="card-title" style="margin-top:1.5rem">Binary</div>
-    <div class="scroll-x">
-      <table>
-        <tbody>
-          <tr>
-            <td class="note">Address</td>
-            <td class="mono">{toBinary(subnet.address)}</td>
-          </tr>
-          <tr>
-            <td class="note">Mask</td>
-            <td class="mono">{toBinary(subnet.mask)}</td>
-          </tr>
-          <tr>
-            <td class="note">Network</td>
-            <td class="mono">{toBinary(subnet.network)}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <p class="note" style="margin-top:0.7rem">
+    <AddressBinary
+      rows={[
+        { label: 'Address', value: subnet.address },
+        { label: 'Mask', value: subnet.mask },
+        { label: 'Network', value: subnet.network },
+        { label: 'Broadcast', value: subnet.broadcast },
+      ]}
+      parentPrefix={subnet.prefix}
+      prefix={subnet.prefix}
+    />
+    <p class="note" style="margin-top:0.9rem">
       The leftmost {subnet.prefix} bits are fixed by the prefix; the remaining {subnet.hostBits}
       identify the host.
     </p>
@@ -214,6 +228,47 @@
 
     <div class="card">
       <div class="card-title">
+        {formatAddress(splitOk.parent.network)}/{splitOk.parent.prefix} · {splitOk.parent.totalAddresses.toLocaleString()} addresses
+      </div>
+      {#if splitSegments.length}
+        <AddressBar
+          parentStart={splitOk.parent.network}
+          parentSize={splitOk.parent.totalAddresses}
+          parentPrefix={splitOk.parent.prefix}
+          segments={splitSegments}
+          selected={String(splitSel)}
+          onselect={(key) => (splitPick = Number(key))}
+          alternate
+        />
+      {:else}
+        <p class="note">
+          {splitOk.subnetCount.toLocaleString()} subnets are too many to draw — the binary view below
+          still shows how any one of them is formed.
+        </p>
+      {/if}
+      {#if splitOk.subnets[splitSel]}
+        {@const s = splitOk.subnets[splitSel]}
+        <div class="card-title" style="margin-top:1.75rem">
+          Subnet #{splitSel} in binary · {formatAddress(s.network)}/{s.prefix}
+        </div>
+        <AddressBinary
+          rows={[
+            { label: 'Network', value: s.network },
+            { label: 'Broadcast', value: s.broadcast },
+          ]}
+          parentPrefix={splitOk.parent.prefix}
+          prefix={splitOk.newPrefix}
+        />
+        <p class="note" style="margin-top:0.9rem">
+          The borrowed bits read {binarySplit(s.network, splitOk.parent.prefix, splitOk.newPrefix).subnet || '—'} —
+          subnet number {splitSel} in binary. Host bits all 0 give the network address; all 1 give
+          the broadcast.
+        </p>
+      {/if}
+    </div>
+
+    <div class="card">
+      <div class="card-title">
         Result — /{splitOk.newPrefix}, {splitOk.subnetCount.toLocaleString()} subnets of {splitOk.blockSize.toLocaleString()}
       </div>
       <div class="scroll-x">
@@ -232,8 +287,10 @@
           <tbody>
             {#each splitOk.subnets as s, i}
               {@const bin = binarySplit(s.network, splitOk.parent.prefix, splitOk.newPrefix)}
-              <tr>
-                <td>{i}</td>
+              <tr class:picked={i === splitSel}>
+                <td>
+                  <button class="pick" aria-pressed={i === splitSel} aria-label={`Show subnet ${i} in binary`} onclick={() => (splitPick = i)}>{i}</button>
+                </td>
                 <td class="mono">{formatAddress(s.network)}/{s.prefix}</td>
                 <td class="mono">{s.firstHost !== null ? formatAddress(s.firstHost) : '—'}</td>
                 <td class="mono">{s.lastHost !== null ? formatAddress(s.lastHost) : '—'}</td>
@@ -269,6 +326,39 @@
     <div class="error-box">{plan.error}</div>
   {:else if planOk}
     <div class="card">
+      <div class="card-title">
+        {formatAddress(planOk.parent.network)}/{planOk.parent.prefix} · {planOk.parent.totalAddresses.toLocaleString()} addresses
+      </div>
+      <AddressBar
+        parentStart={planOk.parent.network}
+        parentSize={planOk.parent.totalAddresses}
+        parentPrefix={planOk.parent.prefix}
+        segments={vlsmSegments}
+        selected={String(vlsmSel)}
+        onselect={(key) => (vlsmPick = Number(key))}
+      />
+      {#if planOk.allocations[vlsmSel]}
+        {@const a = planOk.allocations[vlsmSel]}
+        <div class="card-title" style="margin-top:1.75rem">
+          {a.label} in binary · {formatAddress(a.info.network)}/{a.info.prefix}
+        </div>
+        <AddressBinary
+          rows={[
+            { label: 'Network', value: a.info.network },
+            { label: 'Broadcast', value: a.info.broadcast },
+          ]}
+          parentPrefix={planOk.parent.prefix}
+          prefix={a.info.prefix}
+        />
+        <p class="note" style="margin-top:0.9rem">
+          {32 - a.info.prefix} host bits give 2<sup>{32 - a.info.prefix}</sup> = {a.info.totalAddresses.toLocaleString()}
+          addresses{#if a.info.hasNetworkBroadcast}; minus the network and broadcast, {a.info.usableHosts.toLocaleString()} are usable{/if}
+          — the smallest block that fits {a.requested.toLocaleString()} host{a.requested === 1 ? '' : 's'}.
+        </p>
+      {/if}
+    </div>
+
+    <div class="card">
       <div class="card-title">Allocation</div>
       <div class="scroll-x">
         <table>
@@ -283,9 +373,11 @@
             </tr>
           </thead>
           <tbody>
-            {#each planOk.allocations as a}
-              <tr>
-                <td><strong>{a.label}</strong></td>
+            {#each planOk.allocations as a, i}
+              <tr class:picked={i === vlsmSel}>
+                <td>
+                  <button class="pick label" aria-pressed={i === vlsmSel} aria-label={`Show ${a.label} in binary`} onclick={() => (vlsmPick = i)}>{a.label}</button>
+                </td>
                 <td>{a.requested}</td>
                 <td class="mono">{formatAddress(a.info.network)}/{a.info.prefix}</td>
                 <td class="mono">
@@ -366,5 +458,25 @@
     color: var(--accent);
     font-weight: 600;
     letter-spacing: 0.1em;
+  }
+  tr.picked td {
+    background: var(--accent-soft);
+  }
+  .pick {
+    min-height: 2.25rem;
+    min-width: 2.25rem;
+    padding: 0.2rem 0.6rem;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+  }
+  .pick.label {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+  .pick[aria-pressed='true'] {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--on-ink);
   }
 </style>
