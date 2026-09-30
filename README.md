@@ -35,6 +35,7 @@ src/components/   Svelte 5 islands (runes)
 src/layouts/      the page shell: chapter rail, page header, next-chapter link
 src/styles/       global.css — design tokens and the shared building blocks
 src/pages/        one Astro page per topic
+public/           favicon (SVG + ICO), app icons, and the web app manifest
 ```
 
 ## Look and feel
