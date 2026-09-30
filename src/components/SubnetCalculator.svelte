@@ -1,5 +1,6 @@
 <script lang="ts">
-  import AddressBar, { type BarSegment } from './AddressBar.svelte';
+  import AddressBar from './AddressBar.svelte';
+  import type { BarSegment } from './address-bar';
   import AddressBinary from './AddressBinary.svelte';
   import {
     parseAddress,
