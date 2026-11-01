@@ -313,21 +313,23 @@
     background: var(--tile);
     color: var(--text-muted);
   }
-  .term:hover:not(:disabled) {
-    border-style: solid;
-    border-color: var(--ink);
-    color: var(--text);
+  @media (hover: hover) {
+    .term:hover:not(:disabled) {
+      border-style: solid;
+      border-color: var(--ink);
+      color: var(--text);
+    }
+    /* Higher specificity than the plain hover rule above, so an already-on button keeps
+       white text on hover. */
+    .term.on:hover:not(:disabled) {
+      color: #fff;
+      border-color: var(--ink);
+    }
   }
   .term.on {
     background: var(--accent-fill);
     border: 1px solid var(--accent-fill);
     color: #fff;
-  }
-  /* Higher specificity than the plain hover rule above, so an already-on button keeps
-     white text on hover. */
-  .term.on:hover:not(:disabled) {
-    color: #fff;
-    border-color: var(--ink);
   }
   .term.forced {
     cursor: default;
