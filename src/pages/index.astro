@@ -248,8 +248,14 @@ const miniMatrix = ['1000101', '0100111', '0010110', '0001011'];
     border: 1px solid var(--border-strong);
     color: var(--text);
   }
-  .btn-line:hover {
-    border-color: var(--ink);
+  :global([dir='rtl']) .btn svg,
+  :global([dir='rtl']) .index-arrow {
+    scale: -1 1;
+  }
+  @media (hover: hover) {
+    .btn-line:hover {
+      border-color: var(--ink);
+    }
   }
 
   .specimen {
@@ -433,8 +439,10 @@ const miniMatrix = ['1000101', '0100111', '0010110', '0001011'];
     text-decoration: none;
     color: var(--text);
   }
-  .index-row:hover {
-    background: var(--surface-2);
+  @media (hover: hover) {
+    .index-row:hover {
+      background: var(--surface-2);
+    }
   }
   .index-n {
     flex: 0 0 2.5rem;
