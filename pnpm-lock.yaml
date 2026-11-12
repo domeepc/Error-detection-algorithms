@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@astrojs/svelte':
-        specifier: ^9.0.1
-        version: 9.0.1(astro@7.3.3(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(yaml@2.9.0))(esbuild@0.28.2)(svelte@5.56.10)(typescript@6.0.3)(yaml@2.9.0)
+        specifier: ^9.1.2
+        version: 9.1.2(astro@7.3.3(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(yaml@2.9.0))(esbuild@0.28.2)(svelte@5.56.10)(typescript@6.0.3)(yaml@2.9.0)
       '@fontsource-variable/instrument-sans':
         specifier: ^5.3.0
         version: 5.3.0
@@ -108,9 +108,9 @@ packages:
     resolution: {integrity: sha512-KTivpmnz6lDsC6o9H4+DNm2SrE/GHzw8cNAvEJwAvUT+eoaEnn/4NtbDNfRRaxaJHdp15gf+tfHAWiXR4wB3BA==}
     engines: {node: '>=22.12.0'}
 
-  '@astrojs/svelte@9.0.1':
-    resolution: {integrity: sha512-n5FzIR9Eqs4Kz8O0BIyGfV+wJuAbXRhZazJbq+sdU64Cho83my9/yFUiQyUeGFPnu3nytCg7Dj24LMDsCh31Jg==}
-    engines: {node: '>=22.12.0'}
+  '@astrojs/svelte@9.1.2':
+    resolution: {integrity: sha512-gLLGQL28CPRC/74REhEmqQNUdjagURcqkSLPgjEZceql7WxdAOXyCD9SFxsl75q4R4ePAWiK7SutfqldC+WNHw==}
+    engines: {node: '>=22.23.4'}
     peerDependencies:
       astro: ^7.0.0
       svelte: ^5.43.6
@@ -704,8 +704,8 @@ packages:
     peerDependencies:
       acorn: ^8.9.0
 
-  '@sveltejs/vite-plugin-svelte@7.3.0':
-    resolution: {integrity: sha512-QbRoJyD92e9R0ufeQIWRHrCC0ObcqSv/aBDdrQMoU+sypav3cDx5wytdQ6GLdXjEMO6xjrXGzfkUygng8JMv0A==}
+  '@sveltejs/vite-plugin-svelte@7.3.1':
+    resolution: {integrity: sha512-ZPsLN8B1e/En+Ak5s4V7srFDT532oS0qieLsQwu63NGKsS+iAjoO2Js1BochlHlglcU+Pt7WAO3C5Ee+4f6gVA==}
     engines: {node: ^20.19 || ^22.12 || >=24}
     peerDependencies:
       svelte: ^5.46.4
@@ -1141,9 +1141,6 @@ packages:
 
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
-
-  magic-string@1.2.2:
-    resolution: {integrity: sha512-veT/+7iXrXzT39XnEN4lOxtNl72dMgJ8Lp+5Bd6YcMSWpb0n0MjBM8Uuooi6jgJr8dhUW2swQgBmoZVMni5SVg==}
 
   magic-string@1.3.1:
     resolution: {integrity: sha512-rm91zr2Ou+XueDTohjQQjdQEcYM6zVi8KVUCG8Ec3vHwUEKrhSdCNyfuIywkA6hcCAteIn0ZOtAHA6eGpiX+Pg==}
@@ -1717,9 +1714,9 @@ snapshots:
     dependencies:
       prismjs: 1.30.0
 
-  '@astrojs/svelte@9.0.1(astro@7.3.3(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(yaml@2.9.0))(esbuild@0.28.2)(svelte@5.56.10)(typescript@6.0.3)(yaml@2.9.0)':
+  '@astrojs/svelte@9.1.2(astro@7.3.3(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(yaml@2.9.0))(esbuild@0.28.2)(svelte@5.56.10)(typescript@6.0.3)(yaml@2.9.0)':
     dependencies:
-      '@sveltejs/vite-plugin-svelte': 7.3.0(svelte@5.56.10)(vite@8.3.5(esbuild@0.28.2)(yaml@2.9.0))
+      '@sveltejs/vite-plugin-svelte': 7.3.1(svelte@5.56.10)(vite@8.3.5(esbuild@0.28.2)(yaml@2.9.0))
       astro: 7.3.3(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(yaml@2.9.0)
       svelte: 5.56.10
       svelte2tsx: 0.7.61(svelte@5.56.10)(typescript@6.0.3)
@@ -2149,11 +2146,11 @@ snapshots:
     dependencies:
       acorn: 8.18.0
 
-  '@sveltejs/vite-plugin-svelte@7.3.0(svelte@5.56.10)(vite@8.3.5(esbuild@0.28.2)(yaml@2.9.0))':
+  '@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.56.10)(vite@8.3.5(esbuild@0.28.2)(yaml@2.9.0))':
     dependencies:
       deepmerge: 4.3.1
-      magic-string: 1.2.2
-      obug: 2.1.4
+      magic-string: 1.3.1
+      obug: 2.2.1
       svelte: 5.56.10
       vite: 8.3.5(esbuild@0.28.2)(yaml@2.9.0)
       vitefu: 1.1.3(vite@8.3.5(esbuild@0.28.2)(yaml@2.9.0))
@@ -2639,10 +2636,6 @@ snapshots:
   magic-string@0.30.21:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
-
-  magic-string@1.2.2:
-    dependencies:
-      '@jridgewell/sourcemap-codec': 1.6.0
 
   magic-string@1.3.1:
     dependencies:
